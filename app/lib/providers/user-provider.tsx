@@ -99,7 +99,7 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
         if (userCache.has(id)) return userCache.get(id)!;
 
         try {
-            const res = await fetch(`/api/users/${id}`);
+            const res = await fetch(`/api/users/by-id/${id}`);
             if (!res.ok) throw new Error("Failed to fetch user profile");
             const data: User = await res.json();
             userCache.set(id, data);

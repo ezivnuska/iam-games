@@ -1,10 +1,8 @@
 // app/api/users/[username]/avatar/route.ts
 
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/app/lib/mongoose";
-import User from "@/app/lib/models/user";
-import "@/app/lib/models/image";
-import { transformPopulatedImage } from "@/app/lib/utils/transformers";
+
+const MAIN_APP_URL = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me';
 
 export async function GET(
   req: Request,
@@ -13,21 +11,17 @@ export async function GET(
   try {
     const { username } = await params;
 
-    await connectToDatabase();
-
-    const user = await User.findOne({ username })
-      .populate("avatar")
-      .select("avatar")
-      .lean();
-
-    if (!user) {
+    const res = await fetch(`${MAIN_APP_URL}/api/mobile/users/by-username/${encodeURIComponent(username)}`);
+    if (res.status === 404) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    if (!res.ok) {
+      return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
+    }
 
-    return NextResponse.json({
-      avatar: user.avatar ? transformPopulatedImage(user.avatar) : null
-    });
-  } catch (err: any) {
+    const data = await res.json();
+    return NextResponse.json({ avatar: data.user?.avatar ?? null });
+  } catch (err) {
     console.error("Error fetching user avatar:", err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
