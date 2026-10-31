@@ -1,15 +1,13 @@
 // app/lib/definitions/image.ts
+export {
+  type ImageVariant,
+  type Image,
+} from '@iam/shared-types'
 
-import type { Types } from "mongoose";
+import type { Types } from 'mongoose'
+import type { ImageVariant } from '@iam/shared-types'
 
-export interface ImageVariant {
-  size: string;
-  filename: string;
-  width: number;
-  height: number;
-  url: string;
-}
-
+// DB-level document (server only)
 export interface ImageDocument {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
@@ -18,18 +16,4 @@ export interface ImageDocument {
   variants: ImageVariant[];
   createdAt: string;
   updatedAt: Date;
-}
-
-export interface Image {
-  id: string;
-  userId: string;
-  username: string;
-  alt?: string;
-  variants: {
-    url: string;
-    size: string;
-    width: number;
-    height: number;
-  }[];
-  createdAt?: string;
 }

@@ -8,7 +8,7 @@ import { getSessionUser } from '@/app/lib/utils/auth';
 import { UserProvider } from '@/app/lib/providers/user-provider';
 import { SocketProvider } from '@/app/lib/providers/socket-provider';
 import { TileProvider } from '@/app/lib/providers/tile-provider';
-import type { AppUser } from '@/app/lib/definitions/user';
+import type { SessionUser } from '@/app/lib/utils/auth';
 import type { Viewport } from 'next';
 
 export const viewport: Viewport = {
@@ -22,7 +22,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-    let initialUser: AppUser | null = null;
+    let initialUser: SessionUser | null = null;
     try {
         const session = await getSessionUser();
         if (session) {

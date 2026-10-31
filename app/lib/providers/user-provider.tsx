@@ -40,7 +40,8 @@ const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 interface UserProviderProps {
     children: React.ReactNode;
-    initialUser: AppUser | null;
+    // Session token only carries id/username/role — full User is fetched on mount
+    initialUser: Pick<AppUser, 'id' | 'username' | 'role'> | null;
 }
 
 export function UserProvider({ children, initialUser }: UserProviderProps) {

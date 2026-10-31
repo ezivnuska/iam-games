@@ -1,13 +1,17 @@
 // app/lib/definitions/user.ts
+export {
+  UserRole,
+  type AppUser,
+  type User,
+  type PartialUser,
+  type Author,
+} from '@iam/shared-types'
 
-import type { Document, Types } from "mongoose";
-import type { Image, ImageDocument } from "./image";
+import type { Document, Types } from 'mongoose'
+import type { ImageDocument } from './image'
+import type { UserRole } from '@iam/shared-types'
 
-export enum UserRole {
-  User = "user",
-  Admin = "admin",
-}
-
+// DB-level document (server only)
 export interface UserDocument extends Document {
   _id: Types.ObjectId;
   username: string;
@@ -20,38 +24,4 @@ export interface UserDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
   emailVerified?: Date | null;
-}
-
-export interface AppUser {
-  id: string;
-  username: string;
-  email?: string;
-  role: UserRole;
-  emailVerified?: Date | null;
-}
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: UserRole;
-  emailVerified?: Date | null;
-  bio: string;
-  avatar: Image | null;
-  verified: boolean;
-  createdAt: string;
-  updatedAt: string;
-  isGuest?: boolean;
-}
-
-export interface PartialUser {
-  id: string;
-  username: string;
-  avatar?: Image;
-}
-
-export interface Author {
-  id: string;
-  username: string;
-  avatar?: Image;
 }
