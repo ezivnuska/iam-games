@@ -2,7 +2,7 @@
 set -e
 echo "Starting games deployment..."
 
-cd /var/www/games.iameric.me/iam-games
+cd /var/www/iam-games
 
 echo "Pulling latest code..."
 git checkout -- pnpm-lock.yaml 2>/dev/null || true
