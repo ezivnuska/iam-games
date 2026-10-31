@@ -126,8 +126,12 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
     }
 
     function signIn() {
-        const returnUrl = encodeURIComponent(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002');
-        window.location.href = `${process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me'}/signin?redirect=${returnUrl}`;
+        const mainApp = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me'
+        const returnUrl = typeof window !== 'undefined' ? window.location.pathname : '/'
+        // After login, iam-next-mongo redirects to /api/auth/games-token which
+        // signs a short-lived GAMES_TOKEN_SECRET JWT and hands off to this app.
+        const callbackUrl = encodeURIComponent(`/api/auth/games-token?redirect=${encodeURIComponent(returnUrl)}`)
+        window.location.href = `${mainApp}/signin?callbackUrl=${callbackUrl}`
     }
 
     async function signOut() {
