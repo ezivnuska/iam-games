@@ -12,6 +12,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: 3002,
+        NEXT_PUBLIC_APP_URL: 'https://games.iameric.me',
       },
       max_memory_restart: '512M',
     },
