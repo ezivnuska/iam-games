@@ -1,27 +1,7 @@
 // app/lib/definitions/user.ts
-export {
-  UserRole,
-  type AppUser,
-  type User,
-  type PartialUser,
-  type Author,
-} from '@iam/shared-types'
 
-import type { Document, Types } from 'mongoose'
-import type { ImageDocument } from './image'
-import type { UserRole } from '@iam/shared-types'
+// Wire-format types live in @iam/shared-types — re-export so existing imports work.
+export { UserRole, type AppUser, type User, type PartialUser, type Author } from '@iam/shared-types'
 
-// DB-level document (server only)
-export interface UserDocument extends Document {
-  _id: Types.ObjectId;
-  username: string;
-  email: string;
-  role: UserRole;
-  bio: string;
-  avatar?: Types.ObjectId | ImageDocument | null;
-  password: string;
-  verified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  emailVerified?: Date | null;
-}
+// DB-level document lives in @iam/db — re-export for server-side callers.
+export type { UserDocument } from '@iam/db'
