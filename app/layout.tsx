@@ -8,6 +8,7 @@ import { getSessionUser } from '@/app/lib/utils/auth';
 import { UserProvider } from '@/app/lib/providers/user-provider';
 import { SocketProvider } from '@/app/lib/providers/socket-provider';
 import { TileProvider } from '@/app/lib/providers/tile-provider';
+import SiteSwitcher from '@/app/ui/site-switcher';
 import type { SessionUser } from '@/app/lib/utils/auth';
 import type { Viewport } from 'next';
 
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 />
             </head>
             <body className={`${ubuntu.className} antialiased flex min-h-screen flex-col overflow-x-hidden`}>
+                <SiteSwitcher />
                 <UserProvider initialUser={initialUser}>
                     <SocketProvider>
                         <TileProvider>
