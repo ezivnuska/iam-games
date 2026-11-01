@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../iam-next-mongo/packages/ui/**/*.{ts,tsx}";
 
 @keyframes fade-in {
     0% {

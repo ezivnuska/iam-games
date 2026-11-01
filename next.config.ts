@@ -2,6 +2,15 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
     transpilePackages: ['@iam/shared-types', '@iam/db', '@iam/ui'],
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'iameric-bucket.s3.us-west-1.amazonaws.com',
+                pathname: '/**',
+            },
+        ],
+    },
     serverExternalPackages: ['mongoose'],
     async headers() {
         return [
