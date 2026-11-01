@@ -1,6 +1,6 @@
 // app/lib/utils/auth/nextauth.ts
 // Decodes the NextAuth v5 JWE session cookie from iameric.me.
-// Uses the same AUTH_SECRET + cookie-name salt that auth.js uses internally.
+// Algorithm: A256CBC-HS512 via 'dir', key = HKDF-SHA256(secret, cookieName, 64 bytes).
 
 import { jwtDecrypt } from 'jose';
 import { UserRole } from '@/app/lib/definitions/user';
@@ -21,6 +21,7 @@ async function deriveKey(secret: string, salt: string): Promise<Uint8Array> {
         false,
         ['deriveBits'],
     );
+    // A256CBC-HS512 requires 64 bytes (512 bits)
     const bits = await crypto.subtle.deriveBits(
         {
             name: 'HKDF',
@@ -29,7 +30,7 @@ async function deriveKey(secret: string, salt: string): Promise<Uint8Array> {
             info: new TextEncoder().encode(`Auth.js Generated Encryption Key (${salt})`),
         },
         keyMaterial,
-        256,
+        512,
     );
     return new Uint8Array(bits);
 }
@@ -46,7 +47,11 @@ export async function decodeNextAuthCookie(cookieStore: CookieStore): Promise<Se
 
     try {
         const key = await deriveKey(secret, cookieName);
-        const { payload } = await jwtDecrypt(tokenValue, key, { clockTolerance: 15 });
+        const { payload } = await jwtDecrypt(tokenValue, key, {
+            clockTolerance: 15,
+            keyManagementAlgorithms: ['dir'],
+            contentEncryptionAlgorithms: ['A256CBC-HS512', 'A256GCM'],
+        });
 
         const id = payload.id as string | undefined;
         const username = payload.username as string | undefined;
