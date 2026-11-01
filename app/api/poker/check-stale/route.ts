@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    const game = await PokerGame.findOne({ isSingleton: true });
+    const game = await PokerGame.findOne({ code: 'MAIN' });
 
     if (!game) {
       return NextResponse.json({ message: 'No singleton game found' }, { status: 404 });

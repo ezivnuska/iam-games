@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
                 }
 
                 const { PokerGame } = await import('@/app/games/poker/lib/models/poker-game');
-                const game = await PokerGame.findOne({ isSingleton: true });
+                const game = await PokerGame.findOne({ code: 'MAIN' });
 
                 if (!game) {
                     return NextResponse.json({ error: 'No active game' }, { status: 404 });
