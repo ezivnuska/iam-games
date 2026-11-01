@@ -263,8 +263,9 @@ export async function POST(request: NextRequest) {
                 }
 
                 const player = game.players[playerIndex];
+                const wasAway = player.isAway;
 
-                if (player.isAway) {
+                if (wasAway) {
                     player.isAway = false;
                     game.markModified('players');
                     await game.save();
@@ -276,7 +277,7 @@ export async function POST(request: NextRequest) {
                     });
                 }
 
-                return NextResponse.json({ success: true, wasAway: player.isAway });
+                return NextResponse.json({ success: true, wasAway });
             }
 
             return NextResponse.json({ error: 'Unknown signal' }, { status: 400 });
