@@ -10,7 +10,7 @@ import UserAvatar from '@/app/ui/user/user-avatar'
 import Modal from '@/app/ui/modal'
 import Leaderboard from './leaderboard'
 import clsx from 'clsx';
-import { useHorizontalLayout } from '@/app/lib/hooks/use-horizontal-layout';
+import { useHorizontalLayout } from '@iam/ui';
 import {
     PauseCircleIcon,
     PlayCircleIcon,

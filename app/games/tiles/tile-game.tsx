@@ -6,7 +6,7 @@ import TileGameHeader from './tile-game-header';
 import TileBoard from './tile-board';
 import PageContent from '@/app/ui/layout/page/page-content';
 import { FlexContainer, FlexCenter } from '@/app/ui/flex-container';
-import { useHorizontalLayout } from '@/app/lib/hooks/use-horizontal-layout';
+import { useHorizontalLayout } from '@iam/ui';
 import Breadcrumbs from '@/app/ui/layout/breadcrumbs';
 
 export default function TileGame() {

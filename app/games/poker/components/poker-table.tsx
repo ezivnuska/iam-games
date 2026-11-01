@@ -16,7 +16,7 @@ import PokerDashboard from './poker-dashboard';
 import { Button } from '@/app/ui/button';
 import Link from 'next/link';
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
-import { useScreenOrientation } from '../lib/hooks/use-screen-orientation';
+import { useScreenOrientation } from '@iam/ui';
 import { StaleGameModal } from './stale-game-modal';
 import clsx from 'clsx';
 import PageContent from '@/app/ui/layout/page/page-content';

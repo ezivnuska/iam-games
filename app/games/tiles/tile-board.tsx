@@ -5,7 +5,7 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Direction, GameStatus, TileType } from '@/app/lib/definitions/tiles'
 import { useTiles } from '@/app/lib/providers/tile-provider'
-import { useHorizontalLayout } from '@/app/lib/hooks/use-horizontal-layout'
+import { useHorizontalLayout } from '@iam/ui'
 import { useResponsiveSquareSize } from '@/app/lib/hooks/use-responsive-square-size'
 
 export default function TileBoard() {

@@ -7,7 +7,7 @@ import Player from './player';
 import EmptyPlayerSlot from './empty-player-slot';
 import type { Player as PlayerType, PlayerOrientation } from '@/app/games/poker/lib/definitions/poker';
 import { useGameState } from '@/app/games/poker/lib/providers/poker-provider';
-import { useScreenOrientation } from '@/app/games/poker/lib/hooks/use-screen-orientation';
+import { useScreenOrientation } from '@iam/ui';
 import clsx from 'clsx';
 
 /**
