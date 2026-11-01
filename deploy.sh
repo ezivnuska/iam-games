@@ -22,7 +22,7 @@ else
 fi
 
 echo "Building Next.js application..."
-NODE_ENV=production NODE_OPTIONS="--max-old-space-size=1536" pnpm build
+NEXT_PUBLIC_APP_URL=https://games.iameric.me NODE_ENV=production NODE_OPTIONS="--max-old-space-size=1536" pnpm build
 
 echo "Clearing logs..."
 pm2 flush
