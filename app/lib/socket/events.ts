@@ -62,185 +62,34 @@ export const SOCKET_EVENTS = {
 
 export type SocketEventType = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS]
 
-export interface PokerStateUpdatePayload {
-    _id?: string
-    players: any[]
-    deck: any[]
-    communalCards: any[]
-    pot: any[]
-    stage: number
-    locked: boolean
-    lockTime?: string
-    currentPlayerIndex: number
-    dealerButtonPosition?: number
-    playerBets: number[]
-    winner?: {
-        winnerId: string
-        winnerName: string
-        handRank: string
-        isTie: boolean
-        tiedPlayers?: string[]
-    }
-}
-
-export interface PokerGameDeletedPayload {
-    gameId: string
-}
-
-export interface PokerJoinGamePayload {
-    gameId: string
-    username?: string
-}
-
-export interface PokerJoinSuccessPayload {
-    gameState: any
-}
-
-export interface PokerJoinErrorPayload {
-    error: string
-}
-
-export interface PokerPlayerJoinedPayload {
-    player: { id: string; username: string; chips: any[]; hand: any[] }
-    players: any[]
-    playerCount: number
-}
-
-export interface PokerPlayerLeftPayload {
-    playerId: string
-    players: any[]
-    playerCount: number
-    gameReset?: boolean
-}
-
-export interface PokerSetPresencePayload {
-    gameId: string
-    isAway: boolean
-}
-
-export interface PokerPlayerPresenceUpdatedPayload {
-    playerId: string
-    isAway: boolean
-}
-
-export interface PokerGameLockedPayload {
-    locked: true
-    stage: number
-    players: any[]
-    currentPlayerIndex: number
-    lockTime?: string
-}
-
-export interface PokerBetPlacedPayload {
-    playerIndex: number
-    chipCount: number
-    pot: any[]
-    playerBets: number[]
-    currentPlayerIndex: number
-}
-
-export interface PokerCardsDealtPayload {
-    stage: number
-    communalCards: any[]
-    deckCount: number
-}
-
-export interface PokerRoundCompletePayload {
-    winner: {
-        winnerId: string
-        winnerName: string
-        handRank: string
-        isTie: boolean
-        tiedPlayers?: string[]
-    }
-    players: any[]
-}
-
-export interface PokerActionTimerStartedPayload {
-    startTime: string
-    duration: number
-    currentActionIndex: number
-    totalActions: number
-    actionType: string
-    targetPlayerId?: string
-}
-
-export interface PokerActionTimerPausedPayload {
-    pausedAt: string
-    remainingSeconds: number
-}
-
-export interface PokerActionTimerResumedPayload {
-    resumedAt: string
-    duration: number
-    currentActionIndex: number
-    totalActions: number
-    actionType: string
-    targetPlayerId?: string
-}
-
-export interface PokerActionTimerActionSetPayload {
-    playerId: string
-    action: 'fold' | 'call' | 'check' | 'bet' | 'raise'
-}
-
-export interface PokerBetPayload { gameId: string; chipCount: number }
-export interface PokerFoldPayload { gameId: string }
-export interface PokerSetTimerActionPayload {
-    gameId: string
-    timerAction: 'fold' | 'call' | 'check' | 'bet' | 'raise'
-    betAmount?: number
-}
-
-export interface PokerBetSuccessPayload { success: true }
-export interface PokerFoldSuccessPayload { success: true }
-export interface PokerTimerSuccessPayload { success: true }
-export interface PokerBetErrorPayload { error: string }
-export interface PokerFoldErrorPayload { error: string }
-export interface PokerTimerErrorPayload { error: string }
-
-export interface PokerGameNotificationPayload {
-    message: string
-    type: 'blind' | 'deal' | 'action' | 'info'
-    duration?: number
-}
-
-export type PokerNotificationType =
-    | 'player_bet'
-    | 'player_raise'
-    | 'player_call'
-    | 'player_check'
-    | 'player_fold'
-    | 'player_all_in'
-    | 'player_thinking'
-    | 'player_queued'
-    | 'blind_posted'
-    | 'cards_dealt'
-    | 'winner_determined'
-    | 'game_tied'
-    | 'stage_advanced'
-    | 'player_joined'
-    | 'game_starting'
-    | 'game_shuffling';
-
-export interface PokerNotificationPayload {
-    notificationType: PokerNotificationType;
-    category: 'action' | 'info' | 'blind' | 'stage' | 'deal';
-    playerId?: string;
-    playerName?: string;
-    chipAmount?: number;
-    isAI?: boolean;
-    timerTriggered?: boolean;
-    blindType?: 'small' | 'big';
-    winnerId?: string;
-    winnerName?: string;
-    handRank?: string;
-    isTie?: boolean;
-    tiedPlayers?: string[];
-    stage?: number;
-    stageName?: string;
-    countdownSeconds?: number;
-    pot?: any[];
-    playerBets?: number[];
-    currentPlayerIndex?: number;
-}
+export type {
+    PokerStateUpdatePayload,
+    PokerGameDeletedPayload,
+    PokerJoinGamePayload,
+    PokerJoinSuccessPayload,
+    PokerJoinErrorPayload,
+    PokerPlayerJoinedPayload,
+    PokerPlayerLeftPayload,
+    PokerSetPresencePayload,
+    PokerPlayerPresenceUpdatedPayload,
+    PokerGameLockedPayload,
+    PokerBetPlacedPayload,
+    PokerCardsDealtPayload,
+    PokerRoundCompletePayload,
+    PokerActionTimerStartedPayload,
+    PokerActionTimerPausedPayload,
+    PokerActionTimerResumedPayload,
+    PokerActionTimerActionSetPayload,
+    PokerBetPayload,
+    PokerFoldPayload,
+    PokerSetTimerActionPayload,
+    PokerBetSuccessPayload,
+    PokerFoldSuccessPayload,
+    PokerTimerSuccessPayload,
+    PokerBetErrorPayload,
+    PokerFoldErrorPayload,
+    PokerTimerErrorPayload,
+    PokerGameNotificationPayload,
+    PokerNotificationType,
+    PokerNotificationPayload,
+} from '@iam/shared-types';
