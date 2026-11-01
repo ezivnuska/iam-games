@@ -56,7 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         <SocketProvider>
                             <TileProvider>
                                 <Screen
-                                    brandLines={['iam', 'games']}
+                                    brandHref='https://iameric.me'
                                     headerRight={
                                         <>
                                             <ThemeToggle />
