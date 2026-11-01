@@ -74,7 +74,8 @@ export async function GET(req: NextRequest): Promise<Response> {
             .sign(getSecret());
 
         const isProduction = process.env.NODE_ENV === 'production';
-        const redirectTo = req.nextUrl.searchParams.get('redirect') || '/';
+        const raw = req.nextUrl.searchParams.get('redirect') || '/';
+        const redirectTo = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
         const res = NextResponse.redirect(new URL(redirectTo, req.url));
         res.cookies.set(GAMES_SESSION_COOKIE, sessionToken, {
             httpOnly: true,
