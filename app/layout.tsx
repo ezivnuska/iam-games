@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import '@/app/ui/global.css';
 import { ubuntu } from '@/app/ui/fonts';
-import { Screen, ThemeProvider, ThemeToggle } from '@iam/ui';
+import { Screen, ThemeProvider } from '@iam/ui';
 import { getSessionUser } from '@/app/lib/utils/auth';
 import { UserProvider } from '@/app/lib/providers/user-provider';
 import { SocketProvider } from '@/app/lib/providers/socket-provider';
@@ -57,12 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             <TileProvider>
                                 <Screen
                                     brandHref='https://iameric.me'
-                                    headerRight={
-                                        <>
-                                            <ThemeToggle />
-                                            <UserButton />
-                                        </>
-                                    }
+                                    headerRight={<UserButton />}
                                 >
                                     {children}
                                 </Screen>
