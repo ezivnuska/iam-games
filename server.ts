@@ -64,8 +64,8 @@ app.prepare().then(() => {
     }
 
     const getJwtSecret = () => {
-        if (!process.env.NEXTAUTH_SECRET) throw new Error('NEXTAUTH_SECRET is not set')
-        return new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+        if (!process.env.GAMES_TOKEN_SECRET) throw new Error('GAMES_TOKEN_SECRET is not set')
+        return new TextEncoder().encode(process.env.GAMES_TOKEN_SECRET)
     }
 
     const onlineUsers = new Map<string, Set<string>>()
