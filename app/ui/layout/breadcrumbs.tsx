@@ -35,7 +35,7 @@ export default function Breadcrumbs({ breadcrumbs }: { breadcrumbs: Breadcrumb[]
         <li className='mr-2'>
           <Button
             onClick={handleBack}
-            className='flex items-center justify-center p-1 transition-colors text-blue-600 dark:text-blue-300 hover:text-blue-300'
+            className='flex items-center justify-center p-1 transition-colors text-blue-600 hover:text-blue-300'
             aria-label='Go back'
             variant='ghost'
           >
@@ -46,11 +46,11 @@ export default function Breadcrumbs({ breadcrumbs }: { breadcrumbs: Breadcrumb[]
           <li
             key={breadcrumb.href}
             aria-current={breadcrumb.active}
-            className={breadcrumb.active ? 'text-gray-900 dark:text-white' : 'text-blue-600 dark:text-blue-300'}
+            className={breadcrumb.active ? 'text-gray-900' : 'text-blue-600'}
           >
             <Link href={breadcrumb.href} className='leading-none'>{breadcrumb.label}</Link>
             {index < breadcrumbs.length - 1 ? (
-              <span className='mx-3 inline-block text-gray-400 dark:text-gray-500'>/</span>
+              <span className='mx-3 inline-block text-gray-400'>/</span>
             ) : null}
           </li>
         ))}

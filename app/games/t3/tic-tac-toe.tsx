@@ -154,7 +154,7 @@ export default function TicTacToe() {
                 />
 
                 <div className='flex flex-col items-center justify-center min-h-[60vh] gap-8 px-4'>
-                    <h1 className='text-4xl font-bold text-gray-900 dark:text-white'>
+                    <h1 className='text-4xl font-bold text-gray-900'>
                         Choose Game Mode
                     </h1>
                     <div className='flex flex-col gap-4 w-full max-w-md'>
@@ -191,19 +191,19 @@ export default function TicTacToe() {
             <div className='flex flex-col items-center gap-8 px-4 pb-8'>
                 {/* Score Board */}
                 <div className='flex gap-4 text-center'>
-                    <div className='bg-blue-100 dark:bg-blue-900 px-6 py-3 rounded-lg'>
-                        <div className='text-2xl font-bold text-blue-600 dark:text-blue-300'>
+                    <div className='bg-blue-100 px-6 py-3 rounded-lg'>
+                        <div className='text-2xl font-bold text-blue-600'>
                             {scores.X}
                         </div>
-                        <div className='text-sm text-gray-600 dark:text-gray-400'>
+                        <div className='text-sm text-gray-600'>
                             Player X
                         </div>
                     </div>
-                    <div className='bg-red-100 dark:bg-red-900 px-6 py-3 rounded-lg'>
-                        <div className='text-2xl font-bold text-red-600 dark:text-red-300'>
+                    <div className='bg-red-100 px-6 py-3 rounded-lg'>
+                        <div className='text-2xl font-bold text-red-600'>
                             {scores.O}
                         </div>
-                        <div className='text-sm text-gray-600 dark:text-gray-400'>
+                        <div className='text-sm text-gray-600'>
                             {gameMode === 'ai' ? 'AI (O)' : 'Player O'}
                         </div>
                     </div>
@@ -213,23 +213,23 @@ export default function TicTacToe() {
                 <div className='flex flex-col w-full gap-1 h-20 text-center'>
                     <div
                         className={clsx(
-                            'flex flex-1 bg-blue-900/50 dark:bg-blue-900/50 rounded-lg border-2 border-blue-900/50 dark:border-blue-900/50 overflow-hidden', {
-                            'border-white/50 dark:border-white/50': currentPlayer === 'X',
+                            'flex flex-1 bg-blue-900/50 rounded-lg border-2 border-blue-900/50 overflow-hidden', {
+                            'border-white/50': currentPlayer === 'X',
                         })}
                     >
                         <div
-                            className={`bg-blue-100 dark:bg-blue-900 transition-all duration-200`}
+                            className={`bg-blue-100 transition-all duration-200`}
                             style={{ width: `${Math.floor((scores.X / 10) * 100)}%` }}
                         />
                     </div>
                     <div
                         className={clsx(
-                            'flex flex-1 bg-red-900/50 dark:gb-red-900/50 rounded-lg border-2 border-red-100/50 dark:border-red-900/50 overflow-hidden', {
-                            'border-white/50 dark:border-white/50': currentPlayer === 'O',
+                            'flex flex-1 bg-red-900/50 rounded-lg border-2 border-red-100/50 overflow-hidden', {
+                            'border-white/50': currentPlayer === 'O',
                         })}
                     >
                         <div
-                            className='bg-red-100 dark:bg-red-900 transition-all duration-200'
+                            className='bg-red-100 transition-all duration-200'
                             style={{ width: `${Math.floor((scores.O / 10) * 100)}%` }}
                         />
                     </div>
@@ -237,8 +237,8 @@ export default function TicTacToe() {
 
                 {/* Status */}
                 <div className='text-center'>
-                    <h2 className='text-2xl font-semibold text-gray-700 dark:text-gray-300'>
-                        Current Turn: <span className={currentPlayer === 'X' ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}>
+                    <h2 className='text-2xl font-semibold text-gray-700'>
+                        Current Turn: <span className={currentPlayer === 'X' ? 'text-blue-600' : 'text-red-600'}>
                             {currentPlayer}
                         </span>
                     </h2>
@@ -340,15 +340,15 @@ export default function TicTacToe() {
                                             disabled={isDisabled}
                                             className={`
                                                 aspect-square
-                                                bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:hover:bg-gray-white dark:disabled:hover:bg-gray-800
-                                                border-4 border-gray-300 dark:border-gray-600
+                                                bg-white hover:bg-gray-50 disabled:hover:bg-gray-white
+                                                border-4 border-gray-300
                                                 rounded-lg
                                                 text-6xl font-bold
                                                 cursor-pointer disabled:cursor-not-allowed
-                                                ${cell === 'X' ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}
-                                                ${!cell && !isAnimating && fadingCells.length === 0 && !(gameMode === 'ai' && currentPlayer === 'O') ? currentPlayer === 'X' ? 'hover:border-blue-400 dark:hover:border-blue-500' : 'hover:border-red-400 dark:hover:border-red-500' : ''}
+                                                ${cell === 'X' ? 'text-blue-600' : 'text-red-600'}
+                                                ${!cell && !isAnimating && fadingCells.length === 0 && !(gameMode === 'ai' && currentPlayer === 'O') ? currentPlayer === 'X' ? 'hover:border-blue-400' : 'hover:border-red-400' : ''}
                                                 ${shouldBeInvisible ? 'opacity-0' : 'opacity-100'}
-                                                ${winningCells.includes(cellIndex) && !isSliding ? 'border-green-500 dark:border-green-400' : ''}
+                                                ${winningCells.includes(cellIndex) && !isSliding ? 'border-green-500' : ''}
                                             `}
                                             style={{
                                                 transform: cellTransform,
@@ -363,7 +363,7 @@ export default function TicTacToe() {
                                 {/* Phantom cells for board shift (all columns) - only in draw scenario */}
                                 {isDrawScenario && (
                                     <div
-                                        className='aspect-square bg-white dark:bg-gray-800 border-4 border-gray-300 dark:border-gray-600 rounded-lg'
+                                        className='aspect-square bg-white border-4 border-gray-300 rounded-lg'
                                     />
                                 )}
 
@@ -378,7 +378,7 @@ export default function TicTacToe() {
                                     return (
                                         <div
                                             key={`phantom-winner-${idx}`}
-                                            className='aspect-square bg-white dark:bg-gray-800 border-4 border-gray-300 dark:border-gray-600 rounded-lg'
+                                            className='aspect-square bg-white border-4 border-gray-300 rounded-lg'
                                             style={{
                                                 transform: phantomTransform,
                                                 transition: disableTransition ? 'none' : 'transform 600ms ease-in-out',
