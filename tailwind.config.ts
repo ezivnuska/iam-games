@@ -2,6 +2,7 @@
 module.exports = {
     content: [
       "./app/**/*.{js,ts,jsx,tsx,mdx}",
+      "./node_modules/@iam/ui/**/*.{ts,tsx}",
     ],
     darkMode: 'class',
     theme: {

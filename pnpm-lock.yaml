@@ -17,6 +17,9 @@ importers:
       '@iam/shared-types':
         specifier: file:../iam-next-mongo/packages/shared-types
         version: file:../iam-next-mongo/packages/shared-types
+      '@iam/ui':
+        specifier: file:../iam-next-mongo/packages/ui
+        version: file:../iam-next-mongo/packages/ui
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -348,6 +351,9 @@ packages:
 
   '@iam/shared-types@file:../iam-next-mongo/packages/shared-types':
     resolution: {directory: ../iam-next-mongo/packages/shared-types, type: directory}
+
+  '@iam/ui@file:../iam-next-mongo/packages/ui':
+    resolution: {directory: ../iam-next-mongo/packages/ui, type: directory}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2550,6 +2556,8 @@ snapshots:
       mongoose: 8.24.7
 
   '@iam/shared-types@file:../iam-next-mongo/packages/shared-types': {}
+
+  '@iam/ui@file:../iam-next-mongo/packages/ui': {}
 
   '@img/colour@1.1.0':
     optional: true
