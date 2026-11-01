@@ -13,13 +13,13 @@ import PlayerSlots from './player-slots';
 import CommunalCards from './communal-cards';
 import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
-import { Button } from '@/app/ui/button';
+import { Button } from '@iam/ui';
 import Link from 'next/link';
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useScreenOrientation } from '@iam/ui';
 import { StaleGameModal } from './stale-game-modal';
 import clsx from 'clsx';
-import PageContent from '@/app/ui/layout/page/page-content';
+import { PageContent } from '@iam/ui';
 
 export default function PokerTable() {
   const { players } = usePlayers();

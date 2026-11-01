@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import '@/app/ui/global.css';
-import { ubuntu } from '@/app/ui/fonts';
+import { ubuntu } from '@iam/ui';
 import { Screen, ThemeProvider } from '@iam/ui';
 import { getSessionUser } from '@/app/lib/utils/auth';
 import { UserProvider } from '@/app/lib/providers/user-provider';

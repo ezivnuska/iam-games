@@ -5,7 +5,7 @@
 import { memo, useState, useEffect } from 'react';
 import { usePlayers, useGameState, usePokerActions, useProcessing } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser } from '@/app/lib/providers/user-provider';
-import { Button } from '@/app/ui/button';
+import { Button } from '@iam/ui';
 import clsx from 'clsx';
 import { UnifiedBetControl } from './unified-bet-control';
 import { useTimerActionSync } from '@/app/games/poker/lib/hooks/use-timer-action-sync';

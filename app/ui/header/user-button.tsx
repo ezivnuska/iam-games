@@ -3,7 +3,7 @@
 import clsx from 'clsx';
 import { useHorizontalLayout } from '@iam/ui';
 import { useUser } from '@/app/lib/providers/user-provider';
-import UserAvatar from '@/app/ui/user/user-avatar';
+import { UserAvatar } from '@iam/ui';
 
 export default function UserButton() {
     const { user, signIn, signOut } = useUser();

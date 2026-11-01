@@ -11,7 +11,7 @@
  * - Execute step actions
  */
 
-import { PokerGame } from '../../models/poker-game';
+import { PokerGame, type PokerGameDocument } from '../../models/poker-game';
 import {
   getStepDefinition,
   getCurrentStep,
@@ -35,7 +35,7 @@ export async function initializeStepTracking(gameId: string): Promise<void> {
       if (!game) throw new Error('Game not found');
       return game;
     },
-    async (game) => {
+    async (game: PokerGameDocument) => {
       // Start at Stage 0, Step 1 (Pre-Flop stage notification)
       game.currentStep = {
         stageNumber: 0,
@@ -63,7 +63,7 @@ export async function completeRequirement(
       }
       return game;
     },
-    async (game) => {
+    async (game: PokerGameDocument) => {
       // Add requirement to completed list if not already there
       if (!game.currentStep!.completedRequirements.includes(requirementType)) {
         game.currentStep!.completedRequirements.push(requirementType);
@@ -109,7 +109,7 @@ export async function advanceToNextStep(gameId: string): Promise<{
       }
       return game;
     },
-    async (game) => {
+    async (game: PokerGameDocument) => {
       const currentStageNumber = game.currentStep!.stageNumber;
       const currentStepNumber = game.currentStep!.stepNumber;
 
@@ -214,7 +214,7 @@ export async function skipToWinner(gameId: string): Promise<void> {
       if (!game) throw new Error('Game not found');
       return game;
     },
-    async (game) => {
+    async (game: PokerGameDocument) => {
       // Jump directly to Stage 4 (Showdown), Step 1 (Stage notification)
       game.currentStep = {
         stageNumber: 4,

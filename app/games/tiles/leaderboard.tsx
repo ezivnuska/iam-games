@@ -4,8 +4,8 @@
 
 import { useUser } from '@/app/lib/providers/user-provider'
 import type { Score } from '@/app/lib/definitions/tiles'
-import UserAvatar from '@/app/ui/user/user-avatar'
-import { Button } from '@/app/ui/button'
+import { UserAvatar } from '@iam/ui'
+import { Button } from '@iam/ui'
 
 type LeaderboardProps = {
     scores: Score[]

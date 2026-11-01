@@ -3,8 +3,8 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/app/ui/modal';
-import { Button } from '@/app/ui/button';
+import { Modal } from '@iam/ui';
+import { Button } from '@iam/ui';
 import { validateGuestUsername } from '@/app/games/poker/lib/definitions/validation';
 
 interface GuestUsernameModalProps {

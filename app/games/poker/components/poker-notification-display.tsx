@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { type Notification } from '@/app/games/poker/lib/providers/notification-provider';
 import { usePokerActions, usePlayers, useViewers } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser } from '@/app/lib/providers/user-provider';
-import { Button } from '@/app/ui/button';
+import { Button } from '@iam/ui';
 
 interface PokerNotificationDisplayProps {
   notification: Notification | null;

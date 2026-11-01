@@ -3,9 +3,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PageContent from '@/app/ui/layout/page/page-content';
-import PageHeader from '@/app/ui/layout/page-header';
-import { Button } from '@/app/ui/button';
+import { PageContent } from '@iam/ui';
+import { PageHeader } from '@iam/ui';
+import { Button } from '@iam/ui';
 import clsx from 'clsx';
 import { checkWinner, isBoardFull, getBestMove, shiftBoardUp, slideUpWinningCells } from './t3-logic';
 import type { Player, Board } from './t3-logic';

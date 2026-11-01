@@ -1,8 +1,7 @@
-import PageHeader from './ui/layout/page-header';
+import { PageHeader, PageContent } from '@iam/ui';
 import Link from 'next/link';
 import { PuzzlePieceIcon } from '@heroicons/react/24/solid';
 import { Metadata } from 'next';
-import PageContent from './ui/layout/page/page-content';
 import PokerChipIcon from './ui/icons/poker-chip-icon';
 import T3Icon from './ui/icons/t3-icon';
 

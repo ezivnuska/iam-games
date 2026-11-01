@@ -7,7 +7,7 @@ import type { Player as PlayerType, PlayerOrientation } from '@/app/games/poker/
 import clsx from 'clsx';
 import { useGameState } from '@/app/games/poker/lib/providers/poker-provider';
 import { usePlayers } from '@/app/games/poker/lib/providers/poker-hooks';
-import UserAvatar from '@/app/ui/user/user-avatar';
+import { UserAvatar } from '@iam/ui';
 import PlayerConnectionStatus from './player-connection-status';
 import { useActionTimerPercentage } from '@/app/games/poker/lib/hooks/use-action-timer-percentage';
 

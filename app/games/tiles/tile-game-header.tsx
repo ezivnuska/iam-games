@@ -3,11 +3,11 @@
 'use client';
 
 import React, { useMemo, useState } from 'react'
-import { Button } from '@/app/ui/button'
+import { Button } from '@iam/ui'
 import { useTiles } from '@/app/lib/providers/tile-provider'
 import { GameStatus } from '@/app/lib/definitions/tiles'
-import UserAvatar from '@/app/ui/user/user-avatar'
-import Modal from '@/app/ui/modal'
+import { UserAvatar } from '@iam/ui'
+import { Modal } from '@iam/ui'
 import Leaderboard from './leaderboard'
 import clsx from 'clsx';
 import { useHorizontalLayout } from '@iam/ui';
