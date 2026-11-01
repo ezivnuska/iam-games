@@ -3,14 +3,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { SignJWT } from "jose";
-import { GAMES_SESSION_COOKIE } from "@/app/lib/utils/auth";
+import { GAMES_SESSION_COOKIE, getSecret } from "@/app/lib/utils/auth";
 import { decodeNextAuthCookie } from "@/app/lib/utils/auth/nextauth";
 
 const MAIN_APP_URL = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me';
-
-function getGamesSecret(): Uint8Array {
-    return new TextEncoder().encode(process.env.GAMES_TOKEN_SECRET ?? '');
-}
 
 export async function GET() {
     try {
@@ -28,7 +24,7 @@ export async function GET() {
                 .setProtectedHeader({ alg: 'HS256' })
                 .setIssuedAt()
                 .setExpirationTime('1m')
-                .sign(getGamesSecret());
+                .sign(getSecret());
         }
 
         const res = await fetch(`${MAIN_APP_URL}/api/mobile/me`, {

@@ -13,8 +13,10 @@ export interface SessionUser {
     role: UserRole;
 }
 
-function getSecret(): Uint8Array {
-    return new TextEncoder().encode(process.env.GAMES_TOKEN_SECRET ?? '');
+export function getSecret(): Uint8Array {
+    const secret = process.env.GAMES_TOKEN_SECRET;
+    if (!secret) throw new Error('GAMES_TOKEN_SECRET is not set');
+    return new TextEncoder().encode(secret);
 }
 
 export async function requireAuth(): Promise<SessionUser> {

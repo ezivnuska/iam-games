@@ -3,11 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import { requireAuth } from '@/app/lib/utils/auth';
-
-function getSecret(): Uint8Array {
-    return new TextEncoder().encode(process.env.GAMES_TOKEN_SECRET ?? '');
-}
+import { requireAuth, getSecret } from '@/app/lib/utils/auth';
 
 export async function GET(): Promise<Response> {
     try {

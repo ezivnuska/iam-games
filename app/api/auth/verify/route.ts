@@ -3,11 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
-import { GAMES_SESSION_COOKIE } from '@/app/lib/utils/auth';
-
-function getSecret(): Uint8Array {
-    return new TextEncoder().encode(process.env.GAMES_TOKEN_SECRET ?? '');
-}
+import { GAMES_SESSION_COOKIE, getSecret } from '@/app/lib/utils/auth';
 
 export async function POST(req: NextRequest): Promise<Response> {
     try {
