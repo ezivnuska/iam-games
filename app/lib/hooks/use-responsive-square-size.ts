@@ -25,7 +25,11 @@ export function useResponsiveSquareSize<T extends HTMLElement = HTMLElement>(
             const rect = containerRef.current.getBoundingClientRect();
             const availableVerticalSpace = window.innerHeight - rect.top;
 
-            const squareSize = Math.min(parentWidth, parentHeight, availableVerticalSpace);
+            // Skip parentHeight if 0 — happens when parent height is derived from children (circular)
+            const candidates = parentHeight > 0
+                ? [parentWidth, parentHeight, availableVerticalSpace]
+                : [parentWidth, availableVerticalSpace];
+            const squareSize = Math.min(...candidates);
 
             setSize(prevSize => {
                 if (squareSize !== prevSize && squareSize > 0) {

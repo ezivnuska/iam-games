@@ -15,19 +15,19 @@ const games = [
     {
         title: 'Tic-Tac-Toe',
         description: 'Classic game for two players or play against AI',
-        href: '/games/t3',
+        href: '/t3',
         icon: T3Icon,
     },
     {
         title: 'Tiles',
         description: 'A tile-matching puzzle game',
-        href: '/games/tiles',
+        href: '/tiles',
         icon: PuzzlePieceIcon,
     },
     {
         title: 'Poker',
         description: 'Play Texas Hold\'em poker',
-        href: '/games/poker',
+        href: '/poker',
         icon: PokerChipIcon,
     },
 ];

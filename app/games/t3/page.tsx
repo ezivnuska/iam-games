@@ -1,9 +1,5 @@
-// app/games/t3/page.tsx
-
-import TicTacToe from './tic-tac-toe';
+import { redirect } from 'next/navigation';
 
 export default function T3Page() {
-    return (
-        <TicTacToe />
-    );
+    redirect('/t3');
 }

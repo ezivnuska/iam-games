@@ -1,9 +1,5 @@
-// app/tiles/page.tsx
+import { redirect } from 'next/navigation';
 
-import TileGame from './tile-game';
-
-export default function Page() {
-    return (
-        <TileGame />
-    );
+export default function TilesPage() {
+    redirect('/tiles');
 }

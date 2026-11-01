@@ -1,12 +1,5 @@
-// app/poker/page.tsx
-
-import { PokerProvider } from '@/app/games/poker/lib/providers/poker-provider';
-import PokerTable from '@/app/games/poker/components/poker-table';
+import { redirect } from 'next/navigation';
 
 export default function PokerPage() {
-    return (
-        <PokerProvider>
-            <PokerTable />
-        </PokerProvider>
-    );
+    redirect('/poker');
 }

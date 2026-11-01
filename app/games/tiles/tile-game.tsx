@@ -17,8 +17,8 @@ export default function TileGame() {
                 <div className='flex flex-row items-center justify-between gap-4 w-full'>
                     <Breadcrumbs
                         breadcrumbs={[
-                            { label: 'Games', href: '/games' },
-                            { label: 'Tiles', href: '/games/tiles', active: true },
+                            { label: 'Games', href: '/' },
+                            { label: 'Tiles', href: '/tiles', active: true },
                         ]}
                     />
                     <TileGameHeader />

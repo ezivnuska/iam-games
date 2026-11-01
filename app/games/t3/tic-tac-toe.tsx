@@ -147,8 +147,8 @@ export default function TicTacToe() {
                 <PageHeader
                     useBreadcrumbs={true}
                     breadcrumbs={[
-                        { label: 'Games', href: '/games' },
-                        { label: 'Tic-Tac-Toe', href: '/games/t3', active: true }
+                        { label: 'Games', href: '/' },
+                        { label: 'Tic-Tac-Toe', href: '/t3', active: true }
                     ]}
                     // subtitle='Classic Tic-Tac-Toe game'
                 />
