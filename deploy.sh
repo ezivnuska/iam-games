@@ -12,7 +12,7 @@ echo "Installing dependencies..."
 pnpm install
 
 CHANGED=$(git diff HEAD@{1} HEAD --name-only 2>/dev/null || echo "all")
-NEEDS_CLEAN=$(echo "$CHANGED" | grep -cE "^(pnpm-lock\.yaml|package\.json|next\.config)" || true)
+NEEDS_CLEAN=$(echo "$CHANGED" | grep -cE "^(pnpm-lock\.yaml|package\.json|next\.config|tailwind\.config)" || true)
 
 if [ "$NEEDS_CLEAN" -gt "0" ] || [ "$1" = "--clean" ]; then
   echo "Cleaning build cache..."
