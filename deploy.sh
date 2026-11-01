@@ -4,6 +4,11 @@ echo "Starting games deployment..."
 
 cd /var/www/iam-games
 
+echo "Pulling iam-next-mongo packages..."
+cd /var/www/iam-next-mongo
+git pull origin main
+cd /var/www/iam-games
+
 echo "Pulling latest code..."
 git checkout -- pnpm-lock.yaml 2>/dev/null || true
 git pull origin main
