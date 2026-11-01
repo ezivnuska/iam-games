@@ -4,11 +4,12 @@ export const dynamic = 'force-dynamic';
 
 import '@/app/ui/global.css';
 import { ubuntu } from '@/app/ui/fonts';
-import { Screen } from '@iam/ui';
+import { Screen, ThemeProvider, ThemeToggle } from '@iam/ui';
 import { getSessionUser } from '@/app/lib/utils/auth';
 import { UserProvider } from '@/app/lib/providers/user-provider';
 import { SocketProvider } from '@/app/lib/providers/socket-provider';
 import { TileProvider } from '@/app/lib/providers/tile-provider';
+import UserButton from '@/app/ui/header/user-button';
 import type { SessionUser } from '@/app/lib/utils/auth';
 import type { Viewport } from 'next';
 
@@ -51,13 +52,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </head>
             <body className={`${ubuntu.className} antialiased flex min-h-screen flex-col overflow-x-hidden`}>
                 <UserProvider initialUser={initialUser}>
-                    <SocketProvider>
-                        <TileProvider>
-                            <Screen>
-                                {children}
-                            </Screen>
-                        </TileProvider>
-                    </SocketProvider>
+                    <ThemeProvider>
+                        <SocketProvider>
+                            <TileProvider>
+                                <Screen
+                                    headerRight={
+                                        <>
+                                            <ThemeToggle />
+                                            <UserButton />
+                                        </>
+                                    }
+                                >
+                                    {children}
+                                </Screen>
+                            </TileProvider>
+                        </SocketProvider>
+                    </ThemeProvider>
                 </UserProvider>
             </body>
         </html>
