@@ -2,7 +2,19 @@
 
 import type { Socket } from 'socket.io-client';
 import type { Player, Card, Bet } from '@/app/games/poker/lib/definitions/poker';
-import type { PokerStateUpdatePayload, PokerGameDeletedPayload } from '@/app/lib/socket/events';
+import type {
+  PokerStateUpdatePayload,
+  PokerGameDeletedPayload,
+  PokerPlayerJoinedPayload,
+  PokerPlayerLeftPayload,
+  PokerGameLockedPayload,
+  PokerBetPlacedPayload,
+  PokerCardsDealtPayload,
+  PokerRoundCompletePayload,
+  PokerActionTimerStartedPayload,
+  PokerActionTimerPausedPayload,
+  PokerActionTimerResumedPayload,
+} from '@/app/lib/socket/events';
 import type { PokerSoundType } from '../hooks/use-poker-sounds';
 import type { NotificationType } from './notification-provider';
 
@@ -65,7 +77,7 @@ export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
 
     // If this is a guest user who returned (ID is guest-pending), update their ID from the players array
     if (deps.user?.isGuest && deps.user?.id === 'guest-pending' && deps.user?.username && deps.setUser) {
-      const actualPlayer = payload.players.find((p: Player) =>
+      const actualPlayer = payload.players.find(p =>
         p.id.startsWith('guest-') &&
         p.username === deps.user.username &&
         !p.isAI
@@ -78,34 +90,19 @@ export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
     // Update all state to prevent sync issues
     deps.updaters.updatePlayers(payload.players);
     deps.updaters.updateBettingState(payload.pot, payload.playerBets || [], payload.currentPlayerIndex || 0);
-    deps.updaters.updateStageState(payload.stage, payload.communalCards, payload.deck, (payload as any).stages);
+    deps.updaters.updateStageState(payload.stage, payload.communalCards, payload.deck, payload.stages as any[]);
     deps.updaters.updateGameStatus(payload.locked, payload.lockTime, payload.winner);
 
-    // Update action history if present in payload
-    if ((payload as any).actionHistory) {
-      deps.setActionHistory((payload as any).actionHistory);
-
-      // Check for fold and winner in action history
-      const actionHistory = (payload as any).actionHistory;
-      if (actionHistory && actionHistory.length > 0) {
-        const lastAction = actionHistory[actionHistory.length - 1];
-
-        // Check if second-to-last action was a fold (last is usually GAME_ENDED)
-        const secondLastAction = actionHistory.length > 1 ? actionHistory[actionHistory.length - 2] : null;
-
-        // NOTE: Sounds are now handled centrally by notification system (use-poker-event-handler.ts)
-        // This prevents duplicate sounds and ensures consistent timing
-      }
+    if (payload.actionHistory) {
+      deps.setActionHistory(payload.actionHistory as any[]);
     }
 
-    // Update action timer if present in payload
-    if ((payload as any).actionTimer !== undefined) {
-      deps.setActionTimer((payload as any).actionTimer);
+    if (payload.actionTimer !== undefined) {
+      deps.setActionTimer(payload.actionTimer);
     }
 
-    // Update auto-advance mode if present in payload
-    if ((payload as any).autoAdvanceMode !== undefined) {
-      deps.setAutoAdvanceMode((payload as any).autoAdvanceMode);
+    if (payload.autoAdvanceMode !== undefined) {
+      deps.setAutoAdvanceMode(payload.autoAdvanceMode);
     }
 
     // Clear action processing state (used for fold action which triggers full state update)
@@ -151,12 +148,11 @@ export const createPlayerJoinedHandler = (
   setActionHistory: (history: any[]) => void,
   updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void
 ) => {
-  return (payload: any) => {
+  return (payload: PokerPlayerJoinedPayload) => {
     updatePlayers(payload.players);
     if (payload.actionHistory) {
-      setActionHistory(payload.actionHistory);
+      setActionHistory(payload.actionHistory as any[]);
     }
-    // Update lockTime if present (when 2nd player joins and lock timer starts)
     if (payload.lockTime !== undefined) {
       updateGameStatus(false, payload.lockTime, undefined);
     }
@@ -170,21 +166,17 @@ export const createPlayerLeftHandler = (
   playSound?: (sound: PokerSoundType) => void,
   user?: any
 ) => {
-  return (payload: any) => {
+  return (payload: PokerPlayerLeftPayload) => {
     updatePlayers(payload.players);
 
-    // Update action history if provided
     if (payload.actionHistory) {
-      setActionHistory(payload.actionHistory);
-      // NOTE: Sounds handled by notification system
+      setActionHistory(payload.actionHistory as any[]);
     }
 
-    // If game was reset (all players left), reset game status
     if (payload.gameReset) {
       updateGameStatus(false, undefined, undefined);
     }
 
-    // If the removed player is the current guest user, clear their credentials
     if (user?.isGuest && payload.playerId === user.id) {
       try {
         localStorage.removeItem('poker_guest_id');
@@ -205,8 +197,8 @@ export const createGameLockedHandler = (
   setActionHistory: (history: any[]) => void,
   playSound: (sound: PokerSoundType) => void
 ) => {
-  return (payload: any) => {
-    updatePlayers(payload.players); // Players with empty hands (cards dealt later)
+  return (payload: PokerGameLockedPayload) => {
+    updatePlayers(payload.players);
     updateGameStatus(true, payload.lockTime, undefined);
     // Don't set stage here - let POKER_CARDS_DEALT event handle it through the stage coordinator
     // This ensures stage advancement is detected and sounds play correctly
@@ -218,10 +210,8 @@ export const createGameLockedHandler = (
 
     // Update action history if present
     if (payload.actionHistory !== undefined) {
-      setActionHistory(payload.actionHistory);
+      setActionHistory(payload.actionHistory as any[]);
     }
-
-    // Note: Card deal sound will play when POKER_CARDS_DEALT event is received
   };
 };
 
@@ -233,17 +223,15 @@ export const createBetPlacedHandler = (
   playSound: (sound: PokerSoundType) => void,
   updatePlayers?: (players: Player[]) => void
 ) => {
-  return (payload: any) => {
+  return (payload: PokerBetPlacedPayload) => {
     updateBettingState(payload.pot, payload.playerBets, payload.currentPlayerIndex);
 
-    // Update players if provided (for chip count and all-in status changes)
     if (payload.players && updatePlayers) {
       updatePlayers(payload.players);
     }
 
-    // Update action history
     if (payload.actionHistory && payload.actionHistory.length > 0) {
-      setActionHistory(payload.actionHistory);
+      setActionHistory(payload.actionHistory as any[]);
       // NOTE: Sounds handled by notification system
     }
 
@@ -259,25 +247,20 @@ export const createCardsDealtHandler = (
   playSound?: (sound: PokerSoundType) => void,
   setCurrentPlayerIndex?: (index: number) => void
 ) => {
-  return (payload: any) => {
-    // Update current player index immediately
+  return (payload: PokerCardsDealtPayload) => {
     if (payload.currentPlayerIndex !== undefined && setCurrentPlayerIndex) {
       setCurrentPlayerIndex(payload.currentPlayerIndex);
     }
 
-    // Update players immediately (hands, chips, all-in status)
     if (payload.players && updatePlayers) {
       updatePlayers(payload.players);
     }
 
-    // Route stage and communal cards through the coordinated update system
-    // This will queue the notification and delay the card display until notification completes
-    // NOTE: Sound effects are played by the stage coordinator when cards are actually displayed
     updateStageState(
       payload.stage,
       payload.communalCards || [],
       payload.deck || [],
-      payload.stages
+      payload.stages as any[]
     );
   };
 };
@@ -289,7 +272,7 @@ export const createRoundCompleteHandler = (
   showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: any }) => void,
   gameId?: string | null
 ) => {
-  return (payload: any) => {
+  return (payload: PokerRoundCompletePayload) => {
     setWinner(payload.winner);
     updatePlayers(payload.players);
 
@@ -351,7 +334,7 @@ export const createGameUnlockedHandler = (
 export const createTimerStartedHandler = (
   setActionTimer: React.Dispatch<React.SetStateAction<any>>
 ) => {
-  return (payload: any) => {
+  return (payload: PokerActionTimerStartedPayload) => {
     setActionTimer({
       startTime: payload.startTime,
       duration: payload.duration,
@@ -367,7 +350,7 @@ export const createTimerStartedHandler = (
 export const createTimerPausedHandler = (
   setActionTimer: React.Dispatch<React.SetStateAction<any>>
 ) => {
-  return (payload: any) => {
+  return (_payload: PokerActionTimerPausedPayload) => {
     setActionTimer((prev: any) => prev ? { ...prev, isPaused: true } : undefined);
   };
 };
@@ -375,7 +358,7 @@ export const createTimerPausedHandler = (
 export const createTimerResumedHandler = (
   setActionTimer: React.Dispatch<React.SetStateAction<any>>
 ) => {
-  return (payload: any) => {
+  return (payload: PokerActionTimerResumedPayload) => {
     setActionTimer({
       startTime: payload.resumedAt,
       duration: payload.duration,
@@ -404,23 +387,23 @@ export const registerSocketHandlers = (
     handleConnect: () => void;
     handleDisconnect: () => void;
     handleStateUpdate: (payload: PokerStateUpdatePayload) => void;
-    handleGameCreated: (payload: any) => void;
+    handleGameCreated: (payload: unknown) => void;
     handleGameDeleted: (payload: PokerGameDeletedPayload) => void;
-    handlePlayerJoined: (payload: any) => void;
-    handlePlayerLeft: (payload: any) => void;
-    handlePlayerPresenceUpdated: (payload: any) => void;
-    handleGameLocked: (payload: any) => void;
-    handleGameUnlocked: (payload: any) => void;
-    handleBetPlaced: (payload: any) => void;
-    handleCardsDealt: (payload: any) => void;
-    handleRoundComplete: (payload: any) => void;
-    handleDealerButtonMoved: (payload: any) => void;
-    handleTimerStarted: (payload: any) => void;
-    handleTimerPaused: (payload: any) => void;
-    handleTimerResumed: (payload: any) => void;
+    handlePlayerJoined: (payload: PokerPlayerJoinedPayload) => void;
+    handlePlayerLeft: (payload: PokerPlayerLeftPayload) => void;
+    handlePlayerPresenceUpdated: (payload: { playerId: string; isAway: boolean; username?: string }) => void;
+    handleGameLocked: (payload: PokerGameLockedPayload) => void;
+    handleGameUnlocked: (payload: { locked: false; stage: number; dealerButtonPosition: number }) => void;
+    handleBetPlaced: (payload: PokerBetPlacedPayload) => void;
+    handleCardsDealt: (payload: PokerCardsDealtPayload) => void;
+    handleRoundComplete: (payload: PokerRoundCompletePayload) => void;
+    handleDealerButtonMoved: (payload: { dealerButtonPosition: number }) => void;
+    handleTimerStarted: (payload: PokerActionTimerStartedPayload) => void;
+    handleTimerPaused: (payload: PokerActionTimerPausedPayload) => void;
+    handleTimerResumed: (payload: PokerActionTimerResumedPayload) => void;
     handleTimerCleared: () => void;
   },
-  SOCKET_EVENTS: any
+  SOCKET_EVENTS: Record<string, string>
 ) => {
   socket.on('connect', handlers.handleConnect);
   socket.on('disconnect', handlers.handleDisconnect);

@@ -58,7 +58,7 @@ export interface Player {
   username: string;
   hand: Card[];
   chipCount: number;
-  lastHeartbeat?: Date;
+  lastHeartbeat?: Date | string;
   folded?: boolean;
   isAllIn?: boolean;        // Player has bet all their chips
   allInAmount?: number;     // Total amount player went all-in for (in chip count)
