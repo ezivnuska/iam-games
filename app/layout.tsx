@@ -57,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             <TileProvider>
                                 <Screen
                                     brandHref='https://iameric.me'
-                                    headerRight={<UserButton />}
+                                    userControls={initialUser ? <UserButton /> : undefined}
                                 >
                                     {children}
                                 </Screen>
