@@ -6,12 +6,18 @@ cd /var/www/iam-games
 
 echo "Pulling iam-next-mongo packages..."
 cd /var/www/iam-next-mongo
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 cd /var/www/iam-games
 
 echo "Pulling latest code..."
 git checkout -- pnpm-lock.yaml 2>/dev/null || true
 git pull origin main
+
+echo "Busting local package cache..."
+rm -rf node_modules/.pnpm/@iam+shared-types* node_modules/@iam/shared-types
+rm -rf node_modules/.pnpm/@iam+db* node_modules/@iam/db
+rm -rf node_modules/.pnpm/@iam+ui* node_modules/@iam/ui
 
 echo "Installing dependencies..."
 pnpm install
