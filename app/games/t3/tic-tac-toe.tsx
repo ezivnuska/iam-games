@@ -144,14 +144,7 @@ export default function TicTacToe() {
     if (!gameMode) {
         return (
             <PageContent>
-                <PageHeader
-                    useBreadcrumbs={true}
-                    breadcrumbs={[
-                        { label: 'Games', href: '/' },
-                        { label: 'Tic-Tac-Toe', href: '/t3', active: true }
-                    ]}
-                    // subtitle='Classic Tic-Tac-Toe game'
-                />
+                <PageHeader subtitle='Tic-Tac-Toe' />
 
                 <div className='flex flex-col items-center justify-center min-h-[60vh] gap-8 px-4'>
                     <h1 className='text-4xl font-bold text-gray-900'>
@@ -179,14 +172,7 @@ export default function TicTacToe() {
 
     return (
         <PageContent>
-            <PageHeader
-                useBreadcrumbs={true}
-                breadcrumbs={[
-                    { label: 'Games', href: '/games' },
-                    { label: 'Tic-Tac-Toe', href: '/games/t3', active: true }
-                ]}
-                subtitle={gameMode === 'ai' ? 'Player vs AI' : 'Player vs Player'}
-            />
+            <PageHeader subtitle={gameMode === 'ai' ? 'Player vs AI' : 'Player vs Player'} />
 
             <div className='flex flex-col items-center gap-8 px-4 pb-8'>
                 {/* Score Board */}

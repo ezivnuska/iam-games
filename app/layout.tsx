@@ -10,6 +10,7 @@ import { UserProvider } from '@/app/lib/providers/user-provider';
 import { SocketProvider } from '@/app/lib/providers/socket-provider';
 import { TileProvider } from '@/app/lib/providers/tile-provider';
 import UserButton from '@/app/ui/header/user-button';
+import SignInButton from '@/app/ui/header/sign-in-button';
 import type { SessionUser } from '@/app/lib/utils/auth';
 import type { Viewport } from 'next';
 
@@ -57,7 +58,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             <TileProvider>
                                 <Screen
                                     brandHref='https://iameric.me'
-                                    headerRight={<UserButton />}
+                                    userControls={initialUser ? <UserButton /> : undefined}
+                                    nav={initialUser ? undefined : <SignInButton />}
                                 >
                                     {children}
                                 </Screen>
