@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import type { PlayerOrientation } from '@/app/games/poker/lib/definitions/poker';
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
+import { useSocket } from '@/app/lib/providers/socket-provider';
 import GuestUsernameModal from './guest-username-modal';
 
 interface EmptyPlayerSlotProps {
@@ -38,13 +39,15 @@ function getOrientationClasses(orientation: PlayerOrientation): string {
  */
 export default function EmptyPlayerSlot({ orientation, gameId, isGameLocked, onJoinGame, isClickable = true }: EmptyPlayerSlotProps) {
   const { user, status, setUser } = useUser();
+  const { isConnected } = useSocket();
   const [showGuestModal, setShowGuestModal] = useState(false);
   const orientationClasses = getOrientationClasses(orientation);
 
   const isAuthenticated = status === 'authenticated' || status === 'signing-out';
+  const canClick = isClickable && isConnected;
 
   const handleClick = () => {
-    if (!isClickable) return;
+    if (!canClick) return;
     if (!gameId) return;
 
     if (isAuthenticated) {
@@ -88,18 +91,18 @@ export default function EmptyPlayerSlot({ orientation, gameId, isGameLocked, onJ
     <>
       <button
         onClick={handleClick}
-        disabled={!isClickable}
+        disabled={!canClick}
         className={clsx(
           'flex h-full w-full items-center justify-center gap-2 transition-opacity focus:outline-none bg-green-400/25 border-2 border-dashed border-yellow-300/50 rounded-full',
           orientationClasses,
           {
-            'cursor-pointer hover:opacity-100': isClickable,
-            'cursor-default opacity-50': !isClickable,
+            'cursor-pointer hover:opacity-100': canClick,
+            'cursor-default opacity-50': !canClick,
           }
         )}
-        aria-label={isClickable ? 'Join game' : 'Player slot'}
+        aria-label={canClick ? 'Join game' : isConnected ? 'Player slot' : 'Connecting...'}
       >
-        {isClickable && (
+        {canClick && (
             <div className='flex flex-col items-center justify-center gap-1'>
                 {/* Empty avatar circle with dashed border */}
                 <div className='rounded-full border-green-400/25 w-[28px] h-[28px] flex items-center justify-center bg-gray-800/30'>
@@ -107,7 +110,7 @@ export default function EmptyPlayerSlot({ orientation, gameId, isGameLocked, onJ
                 </div>
 
                 {/* Empty slot label */}
-                {isClickable && <span className='text-xs text-white'>Join</span>}
+                <span className='text-xs text-white'>Join</span>
             </div>
         )}
       </button>
