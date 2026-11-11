@@ -221,7 +221,7 @@ export default function TileBoard() {
                         transition: dragging ? 'none' : 'transform 0.1s ease',
                         cursor: draggable ? 'pointer' : 'auto',
                     }}
-                    className='rounded-xl overflow-hidden'
+                    className='rounded-xl overflow-hidden touch-none'
                     onMouseDown={(e) => onTouchStart(e, tile)}
                     onMouseMove={onTouchMove}
                     onMouseUp={handleMove}
