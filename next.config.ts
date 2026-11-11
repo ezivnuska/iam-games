@@ -24,7 +24,12 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/:path*',
-                headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],
+                headers: [
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    // Allow wss: for Socket.IO. If nginx also sends a CSP header the
+                    // browser applies both; ensure nginx does not block wss: either.
+                    { key: 'Content-Security-Policy', value: "connect-src 'self' wss: ws: https: http:" },
+                ],
             },
         ];
     },

@@ -36,7 +36,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }, [user])
 
     useEffect(() => {
-        const socketInstance = socketIO(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002', {
+        const socketUrl = typeof window !== 'undefined'
+            ? window.location.origin
+            : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002')
+        const socketInstance = socketIO(socketUrl, {
             path: '/api/socket/io',
             transports: ['websocket', 'polling'],
             autoConnect: false,
