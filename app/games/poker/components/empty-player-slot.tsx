@@ -102,15 +102,12 @@ export default function EmptyPlayerSlot({ orientation, gameId, isGameLocked, onJ
         )}
         aria-label={canClick ? 'Join game' : isConnected ? 'Player slot' : 'Connecting...'}
       >
-        {canClick && (
+        {isClickable && (
             <div className='flex flex-col items-center justify-center gap-1'>
-                {/* Empty avatar circle with dashed border */}
                 <div className='rounded-full border-green-400/25 w-[28px] h-[28px] flex items-center justify-center bg-gray-800/30'>
                     <span className='text-white text-lg font-bold'>+</span>
                 </div>
-
-                {/* Empty slot label */}
-                <span className='text-xs text-white'>Join</span>
+                <span className='text-xs text-white'>{isConnected ? 'Join' : '...'}</span>
             </div>
         )}
       </button>

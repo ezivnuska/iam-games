@@ -69,14 +69,16 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
                 }
                 const fullUser: User = await res.json();
                 setUser(fullUser);
-                setStatus("authenticated");
 
-                // Get a socket auth token
+                // Fetch socket auth token before marking authenticated so the
+                // socket registers with a valid token on first connect.
                 const tokenRes = await fetch("/api/auth/session-token");
                 if (tokenRes.ok) {
                     const data = await tokenRes.json();
                     setToken(data.token ?? null);
                 }
+
+                setStatus("authenticated");
 
                 try {
                     localStorage.removeItem('poker_guest_id');
