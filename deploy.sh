@@ -22,14 +22,11 @@ rm -rf node_modules/.pnpm/@iam+ui* node_modules/@iam/ui
 echo "Installing dependencies..."
 pnpm install
 
-CHANGED=$(git diff HEAD@{1} HEAD --name-only 2>/dev/null || echo "all")
-NEEDS_CLEAN=$(echo "$CHANGED" | grep -cE "^(pnpm-lock\.yaml|package\.json|next\.config|tailwind\.config)" || true)
-
-if [ "$NEEDS_CLEAN" -gt "0" ] || [ "$1" = "--clean" ]; then
+if [ "$1" = "--no-clean" ]; then
+  echo "Skipping cache clean..."
+else
   echo "Cleaning build cache..."
   rm -rf .next
-else
-  echo "Skipping cache clean (incremental build)..."
 fi
 
 echo "Building Next.js application..."
