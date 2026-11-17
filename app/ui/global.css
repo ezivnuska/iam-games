@@ -23,10 +23,12 @@ html, body {
 html {
     background-color: #ffffff;
     --text-primary: #111827;
+    height: 100dvh;
 }
 
 body {
     background-color: inherit;
+    height: 100%;
 }
 
 a {
