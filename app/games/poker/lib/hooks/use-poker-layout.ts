@@ -9,7 +9,7 @@ const STORAGE_KEY = 'poker_layout';
 export function usePokerLayout() {
     const [layout, setLayout] = useState<PokerLayout>(() => {
         if (typeof window === 'undefined') return 'classic';
-        return (localStorage.getItem(STORAGE_KEY) as PokerLayout) ?? 'classic';
+        return (localStorage.getItem(STORAGE_KEY) as PokerLayout) ?? 'list';
     });
 
     const toggleLayout = useCallback(() => {
