@@ -95,15 +95,24 @@ export const TileProvider: React.FC<TileProviderProps> = ({ children }) => {
         return `${m > 0 ? (m < 10 ? `0${m}` : `${m}`) : `00`}:${s < 10 ? `0${s}` : s}`
     }, [state.ticks])
 
-    const handleNewScore = async () => {
-        setSavedScore(undefined)
+    const handleNewScore = async (score: string) => {
+        try {
+            await fetch('/api/tiles/scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ score }),
+            })
+            await fetchScores()
+        } catch (error) {
+            console.error('Error saving score:', error)
+        } finally {
+            setSavedScore(undefined)
+        }
     }
 
     useEffect(() => {
-        if (savedScore) {
-            if (user) {
-                handleNewScore()
-            }
+        if (savedScore && user) {
+            handleNewScore(savedScore)
         }
     }, [user, savedScore])
 
@@ -112,13 +121,25 @@ export const TileProvider: React.FC<TileProviderProps> = ({ children }) => {
     }
 
     const clearScores = async () => {
+        try {
+            await fetch('/api/tiles/scores', { method: 'DELETE' })
+        } catch (error) {
+            console.error('Error clearing scores:', error)
+        }
         stopTicker()
         setStatus(GameStatus.IDLE)
         setScores([])
     }
 
     const fetchScores = async () => {
-        // TODO: Implement fetch scores API
+        try {
+            const res = await fetch('/api/tiles/scores')
+            if (!res.ok) return
+            const { scores } = await res.json()
+            setScores(scores)
+        } catch (error) {
+            console.error('Error fetching scores:', error)
+        }
     }
 
     useEffect(() => {
