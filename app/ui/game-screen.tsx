@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from '@heroicons/react/20/solid';
 
 export default function GameScreen({ children }: { children: React.ReactNode }) {
     return (
-        <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900'>
+        <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900 overscroll-none' style={{ touchAction: 'pan-y' }}>
             <Link
                 href='/games'
                 className='absolute top-3 left-3 z-[9999] flex items-center justify-center w-8 h-8 rounded-full bg-white/80 shadow-sm hover:bg-white transition-colors'
