@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { PuzzlePieceIcon } from '@heroicons/react/24/solid';
 import { Metadata } from 'next';
 import PokerChipIcon from './ui/icons/poker-chip-icon';
-import T3Icon from './ui/icons/t3-icon';
 
 export const metadata: Metadata = {
     title: 'IAM Games',
@@ -11,12 +10,6 @@ export const metadata: Metadata = {
 };
 
 const games = [
-    {
-        title: 'Tic-Tac-Toe',
-        description: 'Classic game for two players or play against AI',
-        href: '/t3',
-        icon: T3Icon,
-    },
     {
         title: 'Tiles',
         description: 'A tile-matching puzzle game',
