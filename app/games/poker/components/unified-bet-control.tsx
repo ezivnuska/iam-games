@@ -2,7 +2,7 @@
 
 'use client';
 
-import { ChevronUpIcon, ChevronDownIcon } from '@iam/ui';
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 interface UnifiedBetControlProps {
   betAmount: number;

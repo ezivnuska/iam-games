@@ -5,21 +5,18 @@
 import TileGameHeader from './tile-game-header';
 import TileBoard from './tile-board';
 import { PageContent } from '@iam/ui';
-import { FlexContainer, FlexCenter } from '@iam/ui';
-import { useHorizontalLayout } from '@iam/ui';
 
 export default function TileGame() {
-    const horizontalLayout = useHorizontalLayout();
     return (
         <PageContent>
-            <FlexContainer className='items-stretch'>
+            <div className='flex flex-1 min-h-0 min-w-0 flex-col items-stretch'>
                 <div className='flex flex-row items-center justify-end gap-4 w-full'>
                     <TileGameHeader />
                 </div>
-                <FlexCenter className='flex-col mx-2'>
+                <div className='flex flex-1 min-h-0 min-w-0 items-center justify-center flex-col mx-2'>
                     <TileBoard />
-                </FlexCenter>
-            </FlexContainer>
+                </div>
+            </div>
         </PageContent>
     );
 }
