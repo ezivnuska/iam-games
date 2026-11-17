@@ -19,7 +19,7 @@ export default function UserButton() {
             })}
             title={`Sign out ${user.username}`}
         >
-            <UserAvatar username={user.username} size={horizontalLayout ? 72 : 50} />
+            <UserAvatar username={user.username} avatar={user.avatar} size={horizontalLayout ? 72 : 50} />
         </button>
     );
 }
