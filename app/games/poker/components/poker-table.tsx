@@ -14,8 +14,6 @@ import CommunalCards from './communal-cards';
 import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
 import { Button } from '@iam/ui';
-import Link from 'next/link';
-import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
 import { StaleGameModal } from './stale-game-modal';
 import clsx from 'clsx';
@@ -195,9 +193,6 @@ export default function PokerTable() {
   return (
     <div className='flex flex-1 flex-row items-start justify-center max-h-dvh gap-2 relative bg-green-700 h-full'>
         <PageContent fullscreen>
-            <Link href='/games' className='absolute top-0 left-0 z-20 p-2'>
-                <ArrowLeftIcon className={`h-6 w-6 text-white`} />
-            </Link>
             <div className={clsx('flex flex-1 flex-col w-full h-dvh min-h-[300px] relative', {
                 'min-h-[320px] min-w-[580px]': orientation === 'landscape',
             })}>

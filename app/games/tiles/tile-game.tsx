@@ -5,7 +5,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TileBoard from './tile-board';
 import TileGameControls from './tile-game-controls';
-import { PageContent } from '@iam/ui';
 
 export default function TileGame() {
     const controlsRef = useRef<HTMLDivElement>(null)
@@ -21,15 +20,13 @@ export default function TileGame() {
     }, [])
 
     return (
-        <PageContent scrollable={false}>
-            <div className='flex flex-1 min-h-0 min-w-0 flex-col items-stretch pt-2'>
-                <div className='flex flex-1 min-h-0 min-w-0 items-center justify-center flex-col mx-2'>
-                    <TileBoard bottomOffset={controlsHeight} />
-                    <div ref={controlsRef} className='w-full pb-2'>
-                        <TileGameControls />
-                    </div>
+        <div className='flex flex-1 min-h-0 min-w-0 flex-col items-stretch pt-2'>
+            <div className='flex flex-1 min-h-0 min-w-0 items-center justify-center flex-col mx-2'>
+                <TileBoard bottomOffset={controlsHeight} />
+                <div ref={controlsRef} className='w-full pb-2'>
+                    <TileGameControls />
                 </div>
             </div>
-        </PageContent>
+        </div>
     );
 }
