@@ -27,8 +27,8 @@ const games = [
 export default function HomePage() {
     return (
         <PageContent>
-            <PageHeader subtitle='Interactive games and projects' />
-            <div className='grid gap-4 px-2 pb-8'>
+            <PageHeader subtitle='Games' />
+            <div className='grid gap-4 px-2 py-4'>
                 {games.map((game) => {
                     const IconComponent = game.icon;
                     return (
