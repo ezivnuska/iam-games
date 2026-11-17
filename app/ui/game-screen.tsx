@@ -8,7 +8,7 @@ export default function GameScreen({ children }: { children: React.ReactNode }) 
         <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900'>
             <Link
                 href='/games'
-                className='absolute top-3 left-3 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 shadow-sm hover:bg-white transition-colors'
+                className='absolute top-3 left-3 z-[9999] flex items-center justify-center w-8 h-8 rounded-full bg-white/80 shadow-sm hover:bg-white transition-colors'
             >
                 <ArrowLeftIcon className='h-5 w-5 text-gray-700' />
             </Link>
