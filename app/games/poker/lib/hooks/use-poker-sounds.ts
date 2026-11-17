@@ -40,6 +40,7 @@ export function usePokerSounds() {
     try {
       const context = getAudioContext();
       const response = await fetch(url);
+      if (!response.ok) return;
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await context.decodeAudioData(arrayBuffer);
       audioBuffersRef.current.set(type, audioBuffer);
