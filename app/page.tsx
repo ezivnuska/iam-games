@@ -26,7 +26,7 @@ const games = [
 
 export default function HomePage() {
     return (
-        <PageContent>
+        <PageContent scrollable={false}>
             <PageHeader subtitle='Games' />
             <div className='grid gap-4 px-2 py-4'>
                 {games.map((game) => {
