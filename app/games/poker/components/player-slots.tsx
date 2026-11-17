@@ -122,7 +122,7 @@ interface PlayerSlotsProps {
 /**
  * Calculate blind positions based on dealer button
  */
-function getBlindPositions(dealerButtonPosition: number, playerCount: number) {
+export function getBlindPositions(dealerButtonPosition: number, playerCount: number) {
   if (playerCount < 2) {
     return { smallBlindPos: -1, bigBlindPos: -1 };
   }
