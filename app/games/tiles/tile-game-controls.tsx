@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/solid';
 
 export default function TileGameControls() {
-    const { scores, status, setStatus, clearScores } = useTiles();
+    const { scores, status, ticks, time, setStatus, clearScores } = useTiles();
     const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     const topScore = useMemo(() => scores.length > 0 ? scores[0] : null, [scores]);
@@ -70,6 +70,9 @@ export default function TileGameControls() {
     return (
         <div className='flex flex-row items-center justify-between w-full py-4 px-2'>
             <div className='flex flex-row items-center gap-4'>
+                {ticks > 0 && time && (
+                    <span className='font-bold text-xl'>{time}</span>
+                )}
                 {renderButton()}
             </div>
             {topScore && (
