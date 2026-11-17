@@ -14,6 +14,7 @@ import GuestUsernameModal from './guest-username-modal';
 import { StaleGameModal } from './stale-game-modal';
 import { Button } from '@iam/ui';
 import { getBlindPositions } from './player-slots';
+import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
 import type { PokerLayout } from '@/app/games/poker/lib/hooks/use-poker-layout';
 
 const MAX_SLOTS = 5;
@@ -111,10 +112,12 @@ export default function PokerTableList({
     const { joinGame, resetSingleton } = usePokerActions();
     const { user } = useUser();
 
+    const orientation = useScreenOrientation();
+    const isLandscape = orientation === 'landscape';
+
     const isUserInGame = players.some(p => p.id === user?.id);
     const { smallBlindPos, bigBlindPos } = getBlindPositions(dealerButtonPosition, players.length);
 
-    // Build slot array: filled players + empty slots up to MAX_SLOTS
     let firstEmptySlotFound = false;
     const slots = Array.from({ length: MAX_SLOTS }, (_, i) => {
         const player = players[i];
@@ -126,58 +129,79 @@ export default function PokerTableList({
         return { type: 'player' as const, slotIndex: i, player };
     });
 
+    const renderSlots = () => slots.map(slot => {
+        if (slot.type === 'empty') {
+            return (
+                <EmptySlotRow
+                    key={`empty-${slot.slotIndex}`}
+                    gameId={gameId}
+                    locked={locked}
+                    onJoinGame={joinGame}
+                    isClickable={slot.isFirstEmpty && !isUserInGame}
+                />
+            );
+        }
+        const isCurrentUser = user?.id === slot.player.id;
+        return (
+            <PlayerRow
+                key={slot.player.id}
+                player={slot.player}
+                index={slot.slotIndex}
+                currentPlayerIndex={currentPlayerIndex}
+                isCurrentUser={isCurrentUser}
+                isDealer={slot.slotIndex === dealerButtonPosition}
+                isSmallBlind={slot.slotIndex === smallBlindPos}
+                isBigBlind={slot.slotIndex === bigBlindPos}
+                actionTriggered={actionTriggered}
+            />
+        );
+    });
+
+    const tablePanel = (
+        <div className={isLandscape
+            ? 'flex flex-col items-center justify-center gap-4 bg-green-900 border-l border-green-700 px-4 py-4 w-2/5'
+            : 'flex flex-row items-center justify-center gap-6 px-4 py-3 bg-green-900 border-b border-green-700 min-h-[110px]'
+        }>
+            <Pot />
+            <CommunalCards />
+        </div>
+    );
+
+    const dashboard = (
+        <div className='px-2 pb-2 pt-1 bg-gray-900 border-t border-gray-700'>
+            <PokerDashboard showPlayerControls={showPlayerControls} onActionTaken={handleActionTaken} />
+        </div>
+    );
+
     return (
-        <div className='relative flex flex-1 flex-col bg-gray-900 h-dvh'>
+        <div className={`relative flex flex-1 bg-gray-900 h-dvh ${isLandscape ? 'flex-row' : 'flex-col'}`}>
             <LayoutToggle
                 layout={layout}
                 onToggle={toggleLayout}
                 className='absolute top-2 right-2 z-[9999]'
             />
 
-            {/* Top panel: pot + community cards */}
-            <div className='flex flex-row items-center justify-center gap-6 px-4 py-3 bg-green-900 border-b border-green-700 min-h-[110px]'>
-                <Pot />
-                <CommunalCards />
-            </div>
-
-            {/* Player list */}
-            <div className='flex flex-1 flex-col overflow-y-auto px-2 py-2 gap-1'>
-                {slots.map(slot => {
-                    if (slot.type === 'empty') {
-                        return (
-                            <EmptySlotRow
-                                key={`empty-${slot.slotIndex}`}
-                                gameId={gameId}
-                                locked={locked}
-                                onJoinGame={joinGame}
-                                isClickable={slot.isFirstEmpty && !isUserInGame}
-                            />
-                        );
-                    }
-                    const isCurrentUser = user?.id === slot.player.id;
-                    return (
-                        <PlayerRow
-                            key={slot.player.id}
-                            player={slot.player}
-                            index={slot.slotIndex}
-                            currentPlayerIndex={currentPlayerIndex}
-                            isCurrentUser={isCurrentUser}
-                            isDealer={slot.slotIndex === dealerButtonPosition}
-                            isSmallBlind={slot.slotIndex === smallBlindPos}
-                            isBigBlind={slot.slotIndex === bigBlindPos}
-                            actionTriggered={actionTriggered}
-                        />
-                    );
-                })}
-            </div>
-
-            {/* Bottom: action controls */}
-            <div className='px-2 pb-2 pt-1 bg-gray-900 border-t border-gray-700'>
-                <PokerDashboard
-                    showPlayerControls={showPlayerControls}
-                    onActionTaken={handleActionTaken}
-                />
-            </div>
+            {isLandscape ? (
+                <>
+                    {/* Landscape: players + controls on left, table panel on right */}
+                    <div className='flex flex-1 flex-col min-h-0'>
+                        <div className='flex flex-1 flex-col overflow-y-auto px-2 py-2 gap-1'>
+                            {renderSlots()}
+                        </div>
+                        {dashboard}
+                    </div>
+                    {tablePanel}
+                </>
+            ) : (
+                <>
+                    {/* Portrait: table panel on top, players in middle, controls at bottom */}
+                    {tablePanel}
+                    <div className='flex flex-1 flex-col overflow-y-auto px-2 py-2 gap-1'>
+                        {renderSlots()}
+                    </div>
+                    {dashboard}
+                </>
+            )}
 
             {gameId && (
                 <Button
