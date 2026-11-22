@@ -4,7 +4,6 @@ import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { UserRole } from '@/app/lib/definitions/user';
 import { decodeNextAuthCookie } from './nextauth';
-import type { CrossAppTokenPayload } from '@iam/shared-types';
 
 export const GAMES_SESSION_COOKIE = 'iam-games-session';
 
@@ -28,7 +27,7 @@ export async function requireAuth(): Promise<SessionUser> {
     if (gamesToken) {
         try {
             const { payload } = await jwtVerify(gamesToken, getSecret());
-            const { id, username, role } = payload as unknown as CrossAppTokenPayload;
+            const { id, username, role } = payload as unknown as SessionUser;
             if (!id) throw new Error('Unauthorized');
             return { id, username, role: role ?? UserRole.User };
         } catch (e) {

@@ -3,8 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
-import { GAMES_SESSION_COOKIE, getSecret } from '@/app/lib/utils/auth';
-import type { CrossAppTokenPayload } from '@iam/shared-types';
+import { GAMES_SESSION_COOKIE, getSecret, type SessionUser } from '@/app/lib/utils/auth';
 
 export async function POST(req: NextRequest): Promise<Response> {
     try {
@@ -14,7 +13,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         }
 
         const { payload } = await jwtVerify(token, getSecret());
-        const { id, username, role } = payload as unknown as CrossAppTokenPayload;
+        const { id, username, role } = payload as unknown as SessionUser;
 
         if (!id) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
@@ -53,7 +52,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     try {
         const { payload } = await jwtVerify(token, getSecret());
-        const { id, username, role } = payload as unknown as CrossAppTokenPayload;
+        const { id, username, role } = payload as unknown as SessionUser;
         if (!id) throw new Error('Invalid token');
 
         const sessionToken = await new SignJWT({ id, username, role })
