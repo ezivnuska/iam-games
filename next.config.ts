@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
             },
         ],
     },
-    serverExternalPackages: ['mongoose'],
+    serverExternalPackages: ['mongoose', 'jose'],
     async headers() {
         return [
             {
