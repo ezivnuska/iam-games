@@ -85,11 +85,14 @@ export async function startActionTimer(
   // Schedule auto-execution after duration and store reference
   const timerId = setTimeout(async () => {
     try {
-      await executeScheduledAction(gameId);
-      activeTimers.delete(gameId); // Clean up after execution
+      await Promise.race([
+        executeScheduledAction(gameId),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timer execution timed out')), 30000)),
+      ]);
+      activeTimers.delete(gameId);
     } catch (error) {
       console.error('[Timer] Error executing scheduled action:', error);
-      activeTimers.delete(gameId); // Clean up even on error
+      activeTimers.delete(gameId);
     }
   }, duration * 1000);
 
@@ -122,6 +125,11 @@ async function executeScheduledAction(gameId: string) {
     return;
   }
 
+
+  // Verify targetPlayerId is still the current player — game may have advanced since timer started
+  if (targetPlayerId && game.players[game.currentPlayerIndex]?.id !== targetPlayerId) {
+    return;
+  }
 
   if (actionType === GameActionType.PLAYER_BET && targetPlayerId) {
     try {
@@ -320,11 +328,14 @@ export async function resumeActionTimer(gameId: string) {
     // Schedule new timeout for remaining time and store reference
     const timerId = setTimeout(async () => {
       try {
-        await executeScheduledAction(gameId);
-        activeTimers.delete(gameId); // Clean up after execution
+        await Promise.race([
+          executeScheduledAction(gameId),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timer execution timed out')), 30000)),
+        ]);
+        activeTimers.delete(gameId);
       } catch (error) {
         console.error('[Timer] Error executing scheduled action after resume:', error);
-        activeTimers.delete(gameId); // Clean up even on error
+        activeTimers.delete(gameId);
       }
     }, remainingSeconds * 1000);
 
@@ -333,6 +344,43 @@ export async function resumeActionTimer(gameId: string) {
 
     return game.toObject();
   }, POKER_RETRY_CONFIG);
+}
+
+/**
+ * Restore active timers after server restart.
+ * Finds games with an un-paused actionTimer in the DB and re-registers setTimeouts.
+ */
+export async function restoreActiveTimers(): Promise<void> {
+  try {
+    const games = await PokerGame.find({ 'actionTimer': { $exists: true } });
+    const now = Date.now();
+    let restored = 0;
+    for (const game of games) {
+      const timer = game.actionTimer;
+      if (!timer || timer.isPaused) continue;
+      const gameId = game._id.toString();
+      if (activeTimers.has(gameId)) continue; // already scheduled
+      const elapsed = now - timer.startTime.getTime();
+      const delay = Math.max(0, timer.duration * 1000 - elapsed);
+      const timerId = setTimeout(async () => {
+        try {
+          await Promise.race([
+            executeScheduledAction(gameId),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timer execution timed out')), 30000)),
+          ]);
+          activeTimers.delete(gameId);
+        } catch (error) {
+          console.error('[Timer] Error executing restored scheduled action:', error);
+          activeTimers.delete(gameId);
+        }
+      }, delay);
+      activeTimers.set(gameId, timerId);
+      restored++;
+    }
+    if (restored > 0) console.log(`[Timer] Restored ${restored} active timer(s) after restart`);
+  } catch (error) {
+    console.error('[Timer] Failed to restore active timers:', error);
+  }
 }
 
 /**

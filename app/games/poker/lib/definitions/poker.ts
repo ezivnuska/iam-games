@@ -123,6 +123,7 @@ export interface ActionTimer {
 export interface SerializedActionTimer extends Omit<ActionTimer, 'startTime' | 'actionType'> {
   startTime: string; // ISO string
   actionType: string; // String representation
+  selectedBetAmount?: number;
 }
 
 /**

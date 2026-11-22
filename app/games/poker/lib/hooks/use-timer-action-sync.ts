@@ -47,7 +47,7 @@ export function useTimerActionSync({
             } catch (err) {
                 console.error('Error updating timer action:', err);
             }
-        }, 300);
+        }, 50);
 
         return () => {
             if (actionChangeTimeoutRef.current) {

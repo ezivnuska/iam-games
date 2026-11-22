@@ -135,7 +135,12 @@ export async function handleReadyForNextTurn(gameId: string): Promise<void> {
     if (currentPlayer.isAI) {
       const { executeAIActionIfReady } = await import('../ai/ai-player-manager');
       executeAIActionIfReady(gameId).catch(error => {
-        console.error('[TurnHandler] AI action failed:', error);
+        console.error('[TurnHandler] AI action failed, retrying in 1.5s:', error);
+        setTimeout(() => {
+          executeAIActionIfReady(gameId).catch(retryError => {
+            console.error('[TurnHandler] AI action retry failed:', retryError);
+          });
+        }, 1500);
       });
     }
   }

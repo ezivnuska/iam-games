@@ -6,6 +6,8 @@ import { connectToDatabase } from '@/app/lib/mongoose';
 
 const STALE_THRESHOLD_MS = 60 * 1000;
 
+let timersRestored = false;
+
 export async function POST(request: NextRequest) {
   const secret = request.headers.get('x-internal-secret')
   if (!secret || secret !== process.env.INTERNAL_SECRET) {
@@ -14,6 +16,12 @@ export async function POST(request: NextRequest) {
 
   try {
     await connectToDatabase();
+
+    if (!timersRestored) {
+      timersRestored = true;
+      const { restoreActiveTimers } = await import('@/app/games/poker/lib/server/timers/poker-timer-controller');
+      restoreActiveTimers().catch(err => console.error('[CheckStale] Timer restore failed:', err));
+    }
 
     const game = await PokerGame.findOne({ code: 'MAIN' });
 
