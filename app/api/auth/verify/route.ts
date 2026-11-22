@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
 import { GAMES_SESSION_COOKIE, getSecret } from '@/app/lib/utils/auth';
+import type { CrossAppTokenPayload } from '@iam/shared-types';
 
 export async function POST(req: NextRequest): Promise<Response> {
     try {
@@ -13,18 +14,14 @@ export async function POST(req: NextRequest): Promise<Response> {
         }
 
         const { payload } = await jwtVerify(token, getSecret());
+        const { id, username, role } = payload as unknown as CrossAppTokenPayload;
 
-        const id = payload.id as string;
         if (!id) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
 
         // Issue a session cookie (24h)
-        const sessionToken = await new SignJWT({
-            id,
-            username: payload.username,
-            role: payload.role,
-        })
+        const sessionToken = await new SignJWT({ id, username, role })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
             .setExpirationTime('24h')
@@ -56,14 +53,10 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     try {
         const { payload } = await jwtVerify(token, getSecret());
-        const id = payload.id as string;
+        const { id, username, role } = payload as unknown as CrossAppTokenPayload;
         if (!id) throw new Error('Invalid token');
 
-        const sessionToken = await new SignJWT({
-            id,
-            username: payload.username,
-            role: payload.role,
-        })
+        const sessionToken = await new SignJWT({ id, username, role })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
             .setExpirationTime('24h')
