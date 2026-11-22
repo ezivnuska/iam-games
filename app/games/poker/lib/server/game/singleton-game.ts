@@ -45,9 +45,9 @@ export async function getOrCreateSingletonGame() {
         console.error('[Singleton] Error adding initial AI player:', aiError);
         // Don't fail game creation if AI add fails
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle race condition: another request created the game between our check and create
-      if (error.code === 11000) {
+      if ((error as { code?: number }).code === 11000) {
         game = await PokerGame.findOne({ code: SINGLETON_CODE });
         if (!game) {
           throw new Error('Failed to fetch singleton game after duplicate key error');

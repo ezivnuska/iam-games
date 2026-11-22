@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       wasLocked: game.locked,
       playerCount: game.players?.length || 0,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[CheckStale] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

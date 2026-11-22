@@ -15,7 +15,7 @@ interface Winner {
 interface Player {
   id: string;
   username: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UseAutoRestartOptions {

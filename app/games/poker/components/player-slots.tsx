@@ -6,6 +6,7 @@ import { memo } from 'react';
 import Player from './player';
 import EmptyPlayerSlot from './empty-player-slot';
 import type { Player as PlayerType, PlayerOrientation } from '@/app/games/poker/lib/definitions/poker';
+import type { User } from '@/app/lib/definitions';
 import { useGameState } from '@/app/games/poker/lib/providers/poker-provider';
 import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
 import clsx from 'clsx';
@@ -112,7 +113,7 @@ interface PlayerSlotsProps {
   players: PlayerType[];
   locked: boolean;
   currentPlayerIndex: number;
-  currentUser: any;
+  currentUser: User | null;
   gameId: string | null;
   onJoinGame: (gameId: string, guestUsername?: string) => void;
   onLeaveGame: () => void;

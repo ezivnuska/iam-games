@@ -19,7 +19,7 @@ export async function handleReadyForNextTurn(gameId: string): Promise<void> {
   let game;
   try {
     game = await acquireGameLock(gameId);
-  } catch (error: any) {
+  } catch {
     // If lock acquisition fails, another operation is processing the game
     return;
   }

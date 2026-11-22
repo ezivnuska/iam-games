@@ -144,11 +144,13 @@ export async function lockGameInternal(gameId: string) {
   }, {
     maxRetries: 8,
     baseDelay: 50,
-    isRetryable: (error: any) => {
-      return error.message?.includes('No matching document found') ||
-             error.message?.includes('version') ||
-             error.name === 'VersionError' ||
-             error.message?.includes('currently being processed');
+    isRetryable: (error: unknown) => {
+      const err = error instanceof Error ? error : null;
+      return err?.message?.includes('No matching document found') ||
+             err?.message?.includes('version') ||
+             err?.name === 'VersionError' ||
+             err?.message?.includes('currently being processed') ||
+             false;
     }
   });
 }

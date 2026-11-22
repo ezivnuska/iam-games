@@ -1,6 +1,6 @@
 // app/poker/lib/utils/side-pot-calculator.ts
 
-import type { Player, PotInfo } from '../definitions/poker';
+import type { Player, Bet, PotInfo } from '../definitions/poker';
 import { getActivePlayers } from './player-helpers';
 
 /**
@@ -174,7 +174,7 @@ export function areAllPlayersAllInOrFolded(players: Player[]): boolean {
  * Merge legacy pot structure into PotInfo format for backward compatibility
  */
 export function convertLegacyPotToPotInfo(
-  pot: any[],
+  pot: Bet[],
   players: Player[]
 ): PotInfo {
   const totalAmount = pot.reduce((sum, bet) => {

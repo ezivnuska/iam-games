@@ -30,7 +30,7 @@ export async function getPlayerBalanceOrDefault(
   const balanceDoc = await PokerBalance.findOne({ userId }).lean();
 
   if (balanceDoc) {
-    const balance = balanceDoc as any; // Use any for migration compatibility
+    const balance = balanceDoc as typeof balanceDoc & { chips?: unknown[] };
 
     // Check if balance has the new chipCount field
     if (typeof balance.chipCount === 'number' && balance.chipCount > 0) {

@@ -1,7 +1,7 @@
 // app/lib/providers/poker/poker-state-updaters.ts
 
-import type { Player, Card, Bet, GameStageProps } from '@/app/games/poker/lib/definitions/poker';
-import type { PokerStateUpdatePayload } from '@/app/lib/socket/events';
+import type { Player, Card, Bet, GameStageProps, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
+import type { PokerStateUpdatePayload, PokerWinner } from '@/app/lib/socket/events';
 
 // ============= State Updater Factory Functions =============
 
@@ -17,9 +17,9 @@ export interface StateSetters {
   setDealerButtonPosition: (position: number) => void;
   setPlayerBets: (bets: number[]) => void;
   setGameStages: (stages: GameStageProps[]) => void;
-  setWinner: (winner?: any) => void;
-  setActionHistory: (history: any[]) => void;
-  setActionTimer: (timer?: any) => void;
+  setWinner: (winner?: PokerWinner) => void;
+  setActionHistory: (history: unknown[]) => void;
+  setActionTimer: (timer?: SerializedActionTimer) => void;
 }
 
 export const createResetGameState = (setters: StateSetters) => {
@@ -86,18 +86,12 @@ export const createUpdateStageState = (
 
 export const createUpdateGameStatus = (
   setLocked: (locked: boolean) => void,
-  setWinner: (winner?: any) => void
+  setWinner: (winner?: PokerWinner) => void
 ) => {
   return (
     locked: boolean,
     _lockTime?: string, // Ignored for backwards compatibility
-    winner?: {
-      winnerId: string;
-      winnerName: string;
-      handRank: string;
-      isTie: boolean;
-      tiedPlayers?: string[];
-    }
+    winner?: PokerWinner
   ) => {
     setLocked(locked);
     setWinner(winner); // Always update winner state, even when undefined to clear it
@@ -109,9 +103,9 @@ export const createUpdateGameState = (
   updatePlayers: (players: Player[]) => void,
   updateBettingState: (pot: Bet[], playerBets: number[], currentPlayerIndex: number) => void,
   updateStageState: (stage: number, communalCards: Card[], deck: Card[], stages?: GameStageProps[]) => void,
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void,
-  setActionHistory: (history: any[]) => void,
-  setActionTimer: (timer?: any) => void,
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void,
+  setActionHistory: (history: unknown[]) => void,
+  setActionTimer: (timer?: SerializedActionTimer) => void,
   setDealerButtonPosition: (position: number) => void
 ) => {
   return (state: PokerStateUpdatePayload) => {
@@ -121,14 +115,13 @@ export const createUpdateGameState = (
     }
     updatePlayers(state.players);
     updateBettingState(state.pot, state.playerBets || [], state.currentPlayerIndex || 0);
-    updateStageState(state.stage, state.communalCards, state.deck, (state as any).stages);
+    updateStageState(state.stage, state.communalCards, state.deck, state.stages as GameStageProps[] | undefined);
     updateGameStatus(state.locked, state.lockTime, state.winner);
-    if ((state as any).actionHistory) {
-      setActionHistory((state as any).actionHistory);
+    if (state.actionHistory) {
+      setActionHistory(state.actionHistory);
     }
-    // Set action timer if present in state
-    if ((state as any).actionTimer !== undefined) {
-      setActionTimer((state as any).actionTimer);
+    if (state.actionTimer !== undefined) {
+      setActionTimer(state.actionTimer as SerializedActionTimer);
     }
     // Set dealer button position if present in state
     if (state.dealerButtonPosition !== undefined) {

@@ -13,7 +13,7 @@ export interface Notification {
   type: NotificationType;
   timestamp: number;
   duration: number; // Duration in ms (default 5000)
-  metadata?: any; // Optional metadata for pot sync and other data
+  metadata?: Record<string, unknown>;
   onComplete?: () => void; // Callback when notification timer completes
 }
 

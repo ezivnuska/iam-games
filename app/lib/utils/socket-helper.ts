@@ -1,18 +1,26 @@
 // app/lib/utils/socket-helper.ts
 
-import { emitViaAPI } from '@/app/api/socket/io';
+import { emitViaAPI, getIO } from '@/app/api/socket/io';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
 import { serializeGame } from './game-serialization';
 import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
-import type { PokerNotificationPayload } from '@/app/lib/socket/events';
+import type {
+  PokerNotificationPayload,
+  PokerWinner,
+  PokerPlayer,
+  PokerCard,
+  PokerBet,
+} from '@/app/lib/socket/events';
+
+type SocketData = { userId?: string; username?: string };
 
 export class PokerSocketEmitter {
-  static async emitStateUpdate(game: PokerGameDocument | any) {
+  static async emitStateUpdate(game: PokerGameDocument) {
     const serialized = serializeGame(game);
     await emitViaAPI(SOCKET_EVENTS.POKER_STATE_UPDATE, serialized);
   }
 
-  static async emitGameCreated(game: PokerGameDocument | any) {
+  static async emitGameCreated(game: PokerGameDocument) {
     const serialized = serializeGame(game);
     await emitViaAPI(SOCKET_EVENTS.POKER_GAME_CREATED, serialized);
   }
@@ -22,13 +30,13 @@ export class PokerSocketEmitter {
   }
 
   static async emitPlayerJoined(payload: {
-    player: any; players: any[]; playerCount: number; lockTime?: string; actionHistory: any[];
+    player: Pick<PokerPlayer, 'id' | 'username' | 'chipCount' | 'hand'>; players: PokerPlayer[]; playerCount: number; lockTime?: string; actionHistory: unknown[];
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_PLAYER_JOINED, payload);
   }
 
   static async emitPlayerLeft(payload: {
-    playerId: string; players: any[]; playerCount: number; gameReset?: boolean; actionHistory: any[];
+    playerId: string; players: PokerPlayer[]; playerCount: number; gameReset?: boolean; actionHistory: unknown[];
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_PLAYER_LEFT, payload);
   }
@@ -38,8 +46,8 @@ export class PokerSocketEmitter {
   }
 
   static async emitGameLocked(payload: {
-    locked: true; stage: number; players: any[]; currentPlayerIndex: number;
-    lockTime?: string; pot?: any[]; playerBets?: number[]; actionHistory?: any[];
+    locked: true; stage: number; players: PokerPlayer[]; currentPlayerIndex: number;
+    lockTime?: string; pot?: PokerBet[]; playerBets?: number[]; actionHistory?: unknown[];
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_GAME_LOCKED, payload);
   }
@@ -51,28 +59,28 @@ export class PokerSocketEmitter {
   }
 
   static async emitGameRestart(payload: {
-    stage: number; locked: boolean; players: any[]; communalCards: any[];
-    pot: any[]; playerBets: number[]; currentPlayerIndex: number;
-    dealerButtonPosition?: number; actionHistory: any[]; winner?: any;
+    stage: number; locked: boolean; players: PokerPlayer[]; communalCards: PokerCard[];
+    pot: PokerBet[]; playerBets: number[]; currentPlayerIndex: number;
+    dealerButtonPosition?: number; actionHistory: unknown[]; winner?: PokerWinner;
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_STATE_UPDATE, payload);
   }
 
   static async emitBetPlaced(payload: {
-    playerIndex: number; chipCount: number; pot: any[]; playerBets: number[];
-    currentPlayerIndex: number; actionHistory: any[]; players?: any[];
+    playerIndex: number; chipCount: number; pot: PokerBet[]; playerBets: number[];
+    currentPlayerIndex: number; actionHistory: unknown[]; players?: PokerPlayer[];
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_BET_PLACED, payload);
   }
 
   static async emitCardsDealt(payload: {
-    stage: number; communalCards: any[]; deckCount: number;
-    players?: any[]; currentPlayerIndex?: number;
+    stage: number; communalCards: PokerCard[]; deckCount: number;
+    players?: PokerPlayer[]; currentPlayerIndex?: number;
   }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_CARDS_DEALT, payload);
   }
 
-  static async emitRoundComplete(payload: { winner: any; players: any[] }) {
+  static async emitRoundComplete(payload: { winner: PokerWinner; players: PokerPlayer[] }) {
     await emitViaAPI(SOCKET_EVENTS.POKER_ROUND_COMPLETE, payload);
   }
 
@@ -117,7 +125,9 @@ export class PokerSocketEmitter {
   }
 
   static async emitGameActionResults(results: {
-    betPlaced?: any; cardsDealt?: any; roundComplete?: any;
+    betPlaced?: Parameters<typeof PokerSocketEmitter.emitBetPlaced>[0];
+    cardsDealt?: Parameters<typeof PokerSocketEmitter.emitCardsDealt>[0];
+    roundComplete?: Parameters<typeof PokerSocketEmitter.emitRoundComplete>[0];
   }) {
     if (results.betPlaced) await this.emitBetPlaced(results.betPlaced);
     if (results.cardsDealt) await this.emitCardsDealt(results.cardsDealt);
@@ -138,17 +148,18 @@ export class PokerSocketEmitter {
 }
 
 export function isPlayerConnected(playerId: string, playerUsername?: string): boolean {
-  const io = (global as any).io;
+  const io = getIO();
   if (!io) return false;
 
   const sockets = Array.from(io.sockets.sockets.values());
-  let isConnected = sockets.some((socket: any) => socket.userId === playerId);
+  let isConnected = sockets.some(socket => (socket.data as SocketData).userId === playerId);
 
   if (!isConnected && playerUsername && playerId.startsWith('guest-')) {
-    isConnected = sockets.some((socket: any) =>
-      socket.username === playerUsername &&
-      (socket.userId === 'guest-pending' || socket.userId?.startsWith('guest-'))
-    );
+    isConnected = sockets.some(socket => {
+      const data = socket.data as SocketData;
+      return data.username === playerUsername &&
+        (data.userId === 'guest-pending' || data.userId?.startsWith('guest-'));
+    });
   }
 
   return isConnected;

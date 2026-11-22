@@ -2,6 +2,7 @@
 
 import { randomBytes } from 'crypto';
 import { ActionHistoryType } from '@/app/games/poker/lib/definitions/action-history';
+import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
 
 /**
  * Add an action to the game's action history with automatic ID and timestamp
@@ -12,9 +13,9 @@ import { ActionHistoryType } from '@/app/games/poker/lib/definitions/action-hist
  * @param additionalData - Optional extra fields to include in the action entry
  */
 export function addActionToHistory(
-  game: any,
+  game: PokerGameDocument,
   actionType: ActionHistoryType,
-  additionalData: Record<string, any> = {}
+  additionalData: Record<string, unknown> = {}
 ): void {
   game.actionHistory.push({
     id: randomBytes(8).toString('hex'),
@@ -30,7 +31,7 @@ export function addActionToHistory(
  * Log a player bet action
  */
 export function logBetAction(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   playerName: string,
   chipAmount: number
@@ -47,7 +48,7 @@ export function logBetAction(
  * Log a player fold action
  */
 export function logFoldAction(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   playerName: string
 ): void {
@@ -61,7 +62,7 @@ export function logFoldAction(
  * Log a player join action
  */
 export function logPlayerJoinAction(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   playerName: string
 ): void {
@@ -75,7 +76,7 @@ export function logPlayerJoinAction(
  * Log a player left action
  */
 export function logPlayerLeftAction(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   playerName: string
 ): void {
@@ -88,13 +89,13 @@ export function logPlayerLeftAction(
 /**
  * Log a game started action
  */
-export function logGameStartedAction(game: any): void {
+export function logGameStartedAction(game: PokerGameDocument): void {
   addActionToHistory(game, ActionHistoryType.GAME_STARTED);
 }
 
 /**
  * Log a game restart action (uses GAME_STARTED type)
  */
-export function logGameRestartAction(game: any): void {
+export function logGameRestartAction(game: PokerGameDocument): void {
   addActionToHistory(game, ActionHistoryType.GAME_STARTED);
 }

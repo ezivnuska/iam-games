@@ -1,7 +1,8 @@
 // app/lib/providers/poker/poker-socket-handlers.ts
 
 import type { Socket } from 'socket.io-client';
-import type { Player, Card, Bet } from '@/app/games/poker/lib/definitions/poker';
+import type { Player, Card, Bet, GameStageProps, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
+import type { User } from '@/app/lib/definitions';
 import type {
   PokerStateUpdatePayload,
   PokerGameDeletedPayload,
@@ -14,6 +15,7 @@ import type {
   PokerActionTimerStartedPayload,
   PokerActionTimerPausedPayload,
   PokerActionTimerResumedPayload,
+  PokerWinner,
 } from '@/app/lib/socket/events';
 import type { PokerSoundType } from '../hooks/use-poker-sounds';
 import type { NotificationType } from './notification-provider';
@@ -42,8 +44,8 @@ export interface StateUpdaters {
   updateGameId: (id: string) => void;
   updatePlayers: (players: Player[]) => void;
   updateBettingState: (pot: Bet[], playerBets: number[], currentPlayerIndex: number) => void;
-  updateStageState: (stage: number, communalCards: Card[], deck: Card[], stages?: any[]) => void;
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void;
+  updateStageState: (stage: number, communalCards: Card[], deck: Card[], stages?: GameStageProps[]) => void;
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void;
 }
 
 export interface SocketHandlerDeps {
@@ -54,16 +56,16 @@ export interface SocketHandlerDeps {
   setAvailableGames: React.Dispatch<React.SetStateAction<Array<{ id: string; code: string; creatorId: string | null }>>>;
   setStage: (stage: number) => void;
   setCommunalCards: (cards: Card[]) => void;
-  setWinner: (winner: any) => void;
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>;
-  setActionHistory: (history: any[]) => void;
+  setWinner: (winner?: PokerWinner) => void;
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>;
+  setActionHistory: (history: unknown[]) => void;
   setIsActionProcessing: (processing: boolean) => void;
   setPendingAction: (action: { type: 'bet' | 'fold' | 'call' | 'raise'; playerId: string } | null) => void;
   setAutoAdvanceMode: (mode: boolean) => void;
   playSound: (sound: PokerSoundType) => void;
   getGameNotification?: () => { type: string; timestamp: number; duration: number } | null;
-  user?: any;
-  setUser?: (user: any) => void;
+  user?: User | null;
+  setUser?: (user: User | null) => void;
 }
 
 export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
@@ -90,15 +92,15 @@ export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
     // Update all state to prevent sync issues
     deps.updaters.updatePlayers(payload.players);
     deps.updaters.updateBettingState(payload.pot, payload.playerBets || [], payload.currentPlayerIndex || 0);
-    deps.updaters.updateStageState(payload.stage, payload.communalCards, payload.deck, payload.stages as any[]);
+    deps.updaters.updateStageState(payload.stage, payload.communalCards, payload.deck, payload.stages as GameStageProps[] | undefined);
     deps.updaters.updateGameStatus(payload.locked, payload.lockTime, payload.winner);
 
     if (payload.actionHistory) {
-      deps.setActionHistory(payload.actionHistory as any[]);
+      deps.setActionHistory(payload.actionHistory);
     }
 
     if (payload.actionTimer !== undefined) {
-      deps.setActionTimer(payload.actionTimer);
+      deps.setActionTimer(payload.actionTimer as SerializedActionTimer);
     }
 
     if (payload.autoAdvanceMode !== undefined) {
@@ -114,7 +116,7 @@ export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
 export const createGameCreatedHandler = (
   setAvailableGames: React.Dispatch<React.SetStateAction<Array<{ id: string; code: string; creatorId: string | null }>>>
 ) => {
-  return (payload: any) => {
+  return (payload: { gameId?: string; _id?: string; code?: string; game?: { code?: string; players?: Array<{ id: string }> }; players?: Array<{ id: string }> }) => {
     const newGame = {
       id: payload.gameId || payload._id?.toString(),
       code: payload.game?.code || payload.code,
@@ -145,13 +147,13 @@ export const createGameDeletedHandler = (
 
 export const createPlayerJoinedHandler = (
   updatePlayers: (players: Player[]) => void,
-  setActionHistory: (history: any[]) => void,
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void
+  setActionHistory: (history: unknown[]) => void,
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void
 ) => {
   return (payload: PokerPlayerJoinedPayload) => {
     updatePlayers(payload.players);
     if (payload.actionHistory) {
-      setActionHistory(payload.actionHistory as any[]);
+      setActionHistory(payload.actionHistory);
     }
     if (payload.lockTime !== undefined) {
       updateGameStatus(false, payload.lockTime, undefined);
@@ -161,16 +163,16 @@ export const createPlayerJoinedHandler = (
 
 export const createPlayerLeftHandler = (
   updatePlayers: (players: Player[]) => void,
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void,
-  setActionHistory: (history: any[]) => void,
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void,
+  setActionHistory: (history: unknown[]) => void,
   playSound?: (sound: PokerSoundType) => void,
-  user?: any
+  user?: User | null
 ) => {
   return (payload: PokerPlayerLeftPayload) => {
     updatePlayers(payload.players);
 
     if (payload.actionHistory) {
-      setActionHistory(payload.actionHistory as any[]);
+      setActionHistory(payload.actionHistory);
     }
 
     if (payload.gameReset) {
@@ -191,10 +193,10 @@ export const createPlayerLeftHandler = (
 
 export const createGameLockedHandler = (
   updatePlayers: (players: Player[]) => void,
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void,
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void,
   setStage: (stage: number) => void,
   updateBettingState: (pot: Bet[], playerBets: number[], currentPlayerIndex: number) => void,
-  setActionHistory: (history: any[]) => void,
+  setActionHistory: (history: unknown[]) => void,
   playSound: (sound: PokerSoundType) => void
 ) => {
   return (payload: PokerGameLockedPayload) => {
@@ -208,16 +210,15 @@ export const createGameLockedHandler = (
     // They're synced via blind_posted notifications and state updates from step flow
     // This prevents race condition where empty betting state overwrites blinds
 
-    // Update action history if present
     if (payload.actionHistory !== undefined) {
-      setActionHistory(payload.actionHistory as any[]);
+      setActionHistory(payload.actionHistory);
     }
   };
 };
 
 export const createBetPlacedHandler = (
   updateBettingState: (pot: Bet[], playerBets: number[], currentPlayerIndex: number) => void,
-  setActionHistory: (history: any[]) => void,
+  setActionHistory: (history: unknown[]) => void,
   setIsActionProcessing: (processing: boolean) => void,
   setPendingAction: (action: { type: 'bet' | 'fold' | 'call' | 'raise'; playerId: string } | null) => void,
   playSound: (sound: PokerSoundType) => void,
@@ -231,7 +232,7 @@ export const createBetPlacedHandler = (
     }
 
     if (payload.actionHistory && payload.actionHistory.length > 0) {
-      setActionHistory(payload.actionHistory as any[]);
+      setActionHistory(payload.actionHistory);
       // NOTE: Sounds handled by notification system
     }
 
@@ -242,7 +243,7 @@ export const createBetPlacedHandler = (
 };
 
 export const createCardsDealtHandler = (
-  updateStageState: (stage: number, communalCards: Card[], deck: Card[], stages?: any[]) => void,
+  updateStageState: (stage: number, communalCards: Card[], deck: Card[], stages?: GameStageProps[]) => void,
   updatePlayers?: (players: Player[]) => void,
   playSound?: (sound: PokerSoundType) => void,
   setCurrentPlayerIndex?: (index: number) => void
@@ -260,16 +261,16 @@ export const createCardsDealtHandler = (
       payload.stage,
       payload.communalCards || [],
       payload.deck || [],
-      payload.stages as any[]
+      payload.stages as GameStageProps[] | undefined
     );
   };
 };
 
 export const createRoundCompleteHandler = (
-  setWinner: (winner: any) => void,
+  setWinner: (winner?: PokerWinner) => void,
   updatePlayers: (players: Player[]) => void,
   playSound?: (sound: PokerSoundType) => void,
-  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: any }) => void,
+  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: Record<string, unknown> }) => void,
   gameId?: string | null
 ) => {
   return (payload: PokerRoundCompletePayload) => {
@@ -320,7 +321,7 @@ export const createPlayerPresenceUpdatedHandler = (
 };
 
 export const createGameUnlockedHandler = (
-  updateGameStatus: (locked: boolean, lockTime?: string, winner?: any) => void,
+  updateGameStatus: (locked: boolean, lockTime?: string, winner?: PokerWinner) => void,
   setStage: (stage: number) => void,
   setDealerButtonPosition: (position: number) => void
 ) => {
@@ -332,7 +333,7 @@ export const createGameUnlockedHandler = (
 };
 
 export const createTimerStartedHandler = (
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>
 ) => {
   return (payload: PokerActionTimerStartedPayload) => {
     setActionTimer({
@@ -348,15 +349,15 @@ export const createTimerStartedHandler = (
 };
 
 export const createTimerPausedHandler = (
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>
 ) => {
   return (_payload: PokerActionTimerPausedPayload) => {
-    setActionTimer((prev: any) => prev ? { ...prev, isPaused: true } : undefined);
+    setActionTimer(prev => prev ? { ...prev, isPaused: true } : undefined);
   };
 };
 
 export const createTimerResumedHandler = (
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>
 ) => {
   return (payload: PokerActionTimerResumedPayload) => {
     setActionTimer({
@@ -372,7 +373,7 @@ export const createTimerResumedHandler = (
 };
 
 export const createTimerClearedHandler = (
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>
 ) => {
   return () => {
     setActionTimer(undefined);

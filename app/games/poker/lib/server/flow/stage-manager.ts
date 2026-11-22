@@ -778,9 +778,9 @@ export class StageManager {
           await gameToReset.save();
           savedGame = gameToReset;
           break;
-        } catch (error: any) {
+        } catch (error: unknown) {
           saveAttempts++;
-          if (error.name === 'VersionError' && saveAttempts < MAX_SAVE_ATTEMPTS) {
+          if (error instanceof Error && error.name === 'VersionError' && saveAttempts < MAX_SAVE_ATTEMPTS) {
             // Refetch the document with latest version
             const freshGame = await PokerGame.findById(gameToReset._id);
             if (freshGame) {

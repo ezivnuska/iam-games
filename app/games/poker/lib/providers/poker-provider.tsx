@@ -3,10 +3,11 @@
 'use client';
 
 import { useState, useCallback, ReactNode, useEffect, useMemo, useRef } from 'react';
-import type { GameState, Player, Card, Bet, GameStageProps } from '@/app/games/poker/lib/definitions/poker';
+import type { GameState, Player, Card, Bet, GameStageProps, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
 import { useSocket } from '@/app/lib/providers/socket-provider';
 import { useUser } from '@/app/lib/providers/user-provider';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
+import type { PokerStateUpdatePayload } from '@/app/lib/socket/events';
 import { getChipTotal } from '@/app/games/poker/lib/utils/poker';
 import { calculateCurrentBet } from '@/app/games/poker/lib/utils/betting-helpers';
 
@@ -87,16 +88,8 @@ function PokerProviderInner({ children }: { children: ReactNode }) {
   const { showPlayerNotification, clearAllPlayerNotifications } = usePlayerNotifications();
 
   // --- Server-synced timer state ---
-  const [actionTimer, setActionTimer] = useState<{
-    startTime: string;
-    duration: number;
-    currentActionIndex: number;
-    totalActions: number;
-    actionType: string;
-    targetPlayerId?: string;
-    isPaused: boolean;
-  }>();
-  const [actionHistory, setActionHistory] = useState<any[]>([]);
+  const [actionTimer, setActionTimer] = useState<SerializedActionTimer | undefined>();
+  const [actionHistory, setActionHistory] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // --- Action processing state ---
@@ -243,7 +236,7 @@ function PokerProviderInner({ children }: { children: ReactNode }) {
   );
 
   const updateGameState = useCallback(
-    (state: any) => {
+    (state: PokerStateUpdatePayload) => {
       createUpdateGameState(
         updateGameId,
         updatePlayers,

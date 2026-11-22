@@ -10,7 +10,9 @@
  * Works for both pre-flop and post-flop stages
  * Skips folded and all-in players to find first active player
  */
-export function calculateFirstToActForBettingRound(game: any): number {
+import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
+
+export function calculateFirstToActForBettingRound(game: PokerGameDocument): number {
   const buttonPosition = game.dealerButtonPosition || 0;
   const isHeadsUp = game.players.length === 2;
 

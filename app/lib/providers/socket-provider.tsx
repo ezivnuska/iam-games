@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState, ReactNode, useRef } fro
 import { io as socketIO, Socket } from 'socket.io-client'
 import { useUser } from '@/app/lib/providers/user-provider'
 import { SOCKET_EVENTS } from '@/app/lib/socket/events'
+import type { PokerPlayerLeftPayload } from '@iam/shared-types'
 
 interface SocketContextValue {
     socket: Socket | null
@@ -77,7 +78,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
             })
         })
 
-        socketInstance.on(SOCKET_EVENTS.POKER_PLAYER_LEFT, (payload: { playerId: string; players: any[]; playerCount: number; gameReset?: boolean; actionHistory: any[] }) => {
+        socketInstance.on(SOCKET_EVENTS.POKER_PLAYER_LEFT, (payload: PokerPlayerLeftPayload) => {
             const currentUser = userRef.current
             if (!currentUser?.isGuest) return
 

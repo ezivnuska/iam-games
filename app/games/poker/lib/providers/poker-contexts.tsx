@@ -3,7 +3,7 @@
 'use client';
 
 import { createContext } from 'react';
-import type { GameStageProps, Player, Card, Bet } from '@/app/games/poker/lib/definitions/poker';
+import type { GameStageProps, Player, Card, Bet, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
 import type { PokerSoundType } from '../hooks/use-poker-sounds';
 
 // ============= Context Interfaces =============
@@ -25,17 +25,8 @@ export interface GameStateContextValue {
     isTie: boolean;
     tiedPlayers?: string[];
   };
-  // Server-synced timer state
-  actionTimer?: {
-    startTime: string;         // ISO timestamp
-    duration: number;          // Duration in seconds
-    currentActionIndex: number;
-    totalActions: number;
-    actionType: string;
-    targetPlayerId?: string;
-    isPaused: boolean;
-  };
-  actionHistory: any[];
+  actionTimer?: SerializedActionTimer;
+  actionHistory: unknown[];
   isLoading: boolean;
   selectedAction: 'bet' | 'call' | 'raise' | 'fold' | 'check' | 'allin' | null;
   setSelectedAction: (action: 'bet' | 'call' | 'raise' | 'fold' | 'check' | 'allin' | null) => void;

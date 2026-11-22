@@ -2,6 +2,7 @@
 // Complete fold action flow
 
 import type { Player } from '@/app/games/poker/lib/definitions/poker';
+import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
 import { GameStage } from '@/app/games/poker/lib/definitions/poker';
 import { ActionHistoryType } from '@/app/games/poker/lib/definitions/action-history';
 import { POKER_TIMERS, POKER_RETRY_CONFIG } from '@/app/games/poker/lib/config/poker-constants';
@@ -18,7 +19,7 @@ import { randomBytes } from 'crypto';
  * Validates that a fold request is valid and returns player context
  */
 async function validateFoldRequest(
-  game: any,
+  game: PokerGameDocument,
   playerId: string
 ): Promise<{
   playerIndex: number;
@@ -39,7 +40,7 @@ async function validateFoldRequest(
  * Process fold logic: set winner, award pot, reset player states
  */
 function processFoldAndDetermineWinner(
-  game: any,
+  game: PokerGameDocument,
   winner: Player,
   foldingPlayer: Player
 ): { handRank: string; winnerId: string; winnerName: string; isTie: boolean } {
@@ -115,7 +116,7 @@ async function emitFoldNotifications(
  * This ensures communal cards remain visible during the winner notification.
  */
 async function finalizeFoldAndTriggerRestart(
-  game: any,
+  game: PokerGameDocument,
   gameId: string,
   playerId: string,
   foldingPlayer: Player,

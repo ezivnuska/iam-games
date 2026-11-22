@@ -72,7 +72,7 @@ const reducer = (state: TileState, action: TileAction): TileState => {
         case 'RESET_TICKS':
             return { ...state, ticks: 0 }
         default:
-            throw new Error(`Unhandled action type: ${(action as any).type}`)
+            throw new Error(`Unhandled action type: ${(action as { type: string }).type}`)
     }
 }
 

@@ -39,7 +39,12 @@ type PlaySoundFn = (soundType: 'card-deal' | 'single-card') => void;
 export function useStageCoordinator(gameId: string | null, playSound?: PlaySoundFn) {
   const { isActionNotificationActive } = useNotifications();
   const currentStageRef = useRef<number>(0);
-  const pendingStageUpdateRef = useRef<{ data: StageUpdateData; callbacks: any } | null>(null);
+  type StageCallbacks = {
+    setStage: (stage: number) => void;
+    setCommunalCards: (cards: Card[]) => void;
+    setCurrentPlayerIndex?: (index: number) => void;
+  };
+  const pendingStageUpdateRef = useRef<{ data: StageUpdateData; callbacks: StageCallbacks } | null>(null);
 
   /**
    * Applies a stage update with notification coordination.

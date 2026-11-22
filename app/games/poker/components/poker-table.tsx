@@ -7,6 +7,7 @@ import { usePlayers, useGameState, usePokerActions } from '@/app/games/poker/lib
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
 import { useSocket } from '@/app/lib/providers/socket-provider';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
+import type { PokerNotificationPayload } from '@/app/lib/socket/events';
 import type { User } from '@/app/lib/definitions';
 import { UserRole } from '@/app/lib/definitions/user';
 import { usePokerLayout } from '@/app/games/poker/lib/hooks/use-poker-layout';
@@ -116,7 +117,7 @@ export default function PokerTable() {
 
   useEffect(() => {
     if (!socket || !user?.id) return;
-    const handleTimerAction = (payload: any) => {
+    const handleTimerAction = (payload: PokerNotificationPayload) => {
       if (payload.timerTriggered && payload.playerId === user.id) setActionTriggered(true);
     };
     socket.on(SOCKET_EVENTS.POKER_NOTIFICATION, handleTimerAction);

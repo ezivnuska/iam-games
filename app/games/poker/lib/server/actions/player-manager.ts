@@ -159,8 +159,8 @@ export async function processQueuedPlayers(gameId: string): Promise<void> {
       if (!result.success) {
         console.error(`[ProcessQueuedPlayers] Failed to add ${queuedPlayer.username}:`, result.error);
       }
-    } catch (error: any) {
-      console.error(`[ProcessQueuedPlayers] Error adding ${queuedPlayer.username}:`, error.message);
+    } catch (error: unknown) {
+      console.error(`[ProcessQueuedPlayers] Error adding ${queuedPlayer.username}:`, error instanceof Error ? error.message : error);
     }
   }
 
@@ -184,7 +184,7 @@ export async function handlePlayerJoin(
   userId: string,
   username: string,
   options: { skipLockTimeReset?: boolean } = {}
-): Promise<{ success: boolean; gameState: any; error?: string }> {
+): Promise<{ success: boolean; gameState: unknown; error?: string }> {
   try {
     // Add player to game
     const gameState = await addPlayer(gameId, {
@@ -193,7 +193,7 @@ export async function handlePlayerJoin(
     }, options);
 
     // Find the newly joined player
-    const joinedPlayer = gameState.players.find((p: any) => p.id === userId);
+    const joinedPlayer = gameState.players.find((p: { id: string }) => p.id === userId);
 
     // Fetch game document and log player join action
     const updatedGame = await PokerGame.findById(gameId);
@@ -224,8 +224,8 @@ export async function handlePlayerJoin(
     }
 
     return { success: true, gameState: serializedState };
-  } catch (error: any) {
-    const errorMessage = error?.message || 'Failed to join game';
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to join game';
     console.error('[HandlePlayerJoin] Error:', errorMessage);
     return { success: false, gameState: null, error: errorMessage };
   }
@@ -238,7 +238,7 @@ export async function handlePlayerJoin(
 export async function handlePlayerLeave(
   gameId: string,
   userId: string
-): Promise<{ success: boolean; gameState: any; error?: string }> {
+): Promise<{ success: boolean; gameState: unknown; error?: string }> {
   try {
     // Get game state before removing to check timer
     const gameBefore = await PokerGame.findById(gameId);
@@ -299,8 +299,8 @@ export async function handlePlayerLeave(
     }
 
     return { success: true, gameState: serializedState };
-  } catch (error: any) {
-    const errorMessage = error?.message || 'Failed to leave game';
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to leave game';
     console.error('[HandlePlayerLeave] Error:', errorMessage);
     return { success: false, gameState: null, error: errorMessage };
   }
@@ -371,7 +371,7 @@ export async function setPlayerPresence(
  * Remove player from players array and track context
  */
 function removePlayerFromGame(
-  game: any,
+  game: PokerGameDocument,
   userId: string
 ): {
   leavingPlayer: Player | undefined;
@@ -394,7 +394,7 @@ function removePlayerFromGame(
  * Adjust dealer button position after a player leaves
  */
 function adjustDealerButtonPosition(
-  game: any,
+  game: PokerGameDocument,
   leavingPlayerIndex: number,
   wasDealer: boolean
 ): void {
@@ -421,7 +421,7 @@ function adjustDealerButtonPosition(
 /**
  * Manage lock timer based on player count after removal
  */
-async function manageLockTimerAfterRemoval(game: any, gameId: string): Promise<void> {
+async function manageLockTimerAfterRemoval(game: PokerGameDocument, gameId: string): Promise<void> {
   // Count human players (AI player doesn't count toward game start requirements)
   const humanCount = game.players.filter((p: Player) => !p.isAI).length;
 
@@ -448,7 +448,7 @@ async function manageLockTimerAfterRemoval(game: any, gameId: string): Promise<v
  * Adjust current player index after player removal
  */
 function adjustCurrentPlayerIndex(
-  game: any,
+  game: PokerGameDocument,
   wasCurrentPlayer: boolean,
   leavingPlayerIndex: number
 ): void {
@@ -477,7 +477,7 @@ function adjustCurrentPlayerIndex(
 /**
  * Reset game state when only one player remains
  */
-async function resetGameForSinglePlayer(game: any, gameId: string): Promise<void> {
+async function resetGameForSinglePlayer(game: PokerGameDocument, gameId: string): Promise<void> {
   game.locked = false;
   game.lockTime = undefined;
   game.winner = undefined;
@@ -540,7 +540,7 @@ async function resetGameForSinglePlayer(game: any, gameId: string): Promise<void
 export async function removePlayer(
   gameId: string,
   user: { id: string; username: string }
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   // Retry logic for version conflicts
   return withRetry(async () => {
     const game = await PokerGame.findById(gameId);

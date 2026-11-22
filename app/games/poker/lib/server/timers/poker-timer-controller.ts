@@ -31,7 +31,7 @@ export async function startActionTimer(
 
   // Check if target player is away - default to fold if so
   const targetPlayer = targetPlayerId
-    ? game.players.find((p: any) => p.id === targetPlayerId)
+    ? game.players.find(p => p.id === targetPlayerId)
     : null;
   const defaultAction = targetPlayer?.isAway ? 'fold' : undefined;
 
@@ -217,8 +217,8 @@ async function executeScheduledAction(gameId: string) {
       }
 
       // Note: placeBet() already handles starting the next timer internally
-    } catch (betError: any) {
-      console.error('[Poker] Failed to execute auto-action:', betError.message);
+    } catch (betError: unknown) {
+      console.error('[Poker] Failed to execute auto-action:', betError instanceof Error ? betError.message : betError);
       // Timer will not retry - the error has been logged
       // Client-side fallback timer check may catch this
     }
@@ -349,7 +349,7 @@ export async function setTurnTimerAction(
   validatePlayerExists(game.players, playerId);
 
   // Prepare update object
-  const updateObj: any = {
+  const updateObj: Record<string, unknown> = {
     'actionTimer.selectedAction': action
   };
 

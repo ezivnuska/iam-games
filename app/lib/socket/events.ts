@@ -92,4 +92,8 @@ export type {
     PokerGameNotificationPayload,
     PokerNotificationType,
     PokerNotificationPayload,
+    PokerWinner,
+    PokerPlayer,
+    PokerCard,
+    PokerBet,
 } from '@iam/shared-types';

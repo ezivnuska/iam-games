@@ -3,11 +3,12 @@
 
 import { POKER_TIMERS } from '@/app/games/poker/lib/config/poker-constants';
 import { PokerSocketEmitter } from '@/app/lib/utils/socket-helper';
+import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
 
 /**
  * Clear action timer from game object and cancel server-side setTimeout
  */
-export async function clearGameTimer(game: any, gameId: string): Promise<void> {
+export async function clearGameTimer(game: PokerGameDocument, gameId: string): Promise<void> {
   // Clear timer from game object
   game.actionTimer = undefined;
   game.markModified('actionTimer');
@@ -26,7 +27,7 @@ export async function clearGameTimer(game: any, gameId: string): Promise<void> {
  * Used by bet and fold handlers when game continues (not ending)
  */
 export async function finalizeActionAndContinue(
-  game: any,
+  game: PokerGameDocument,
   gameId: string,
   playerId: string,
   actionType: 'bet' | 'fold'
@@ -50,9 +51,8 @@ export async function finalizeActionAndContinue(
     const { handleReadyForNextTurn } = await import('../turn/turn-handler');
     try {
       await handleReadyForNextTurn(gameId);
-    } catch (error: any) {
-      // Version errors are expected during concurrent operations - log as info, not error
-      if (error.name === 'VersionError' || error.message?.includes('version')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && (error.name === 'VersionError' || error.message?.includes('version'))) {
         // Silent - expected during concurrent operations
       } else {
         console.error(`[${actionType.toUpperCase()}] Turn advancement error:`, error);
@@ -66,7 +66,7 @@ export async function finalizeActionAndContinue(
  * Used by fold handler when a winner is determined
  */
 export async function finalizeActionAndEndGame(
-  game: any,
+  game: PokerGameDocument,
   gameId: string
 ): Promise<void> {
   // Save all players' chip balances

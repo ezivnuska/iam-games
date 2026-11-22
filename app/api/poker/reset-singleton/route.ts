@@ -27,8 +27,8 @@ export const POST = withRateLimit(RATE_LIMITS.DESTRUCTIVE, withAuth(async (reque
     await PokerSocketEmitter.emitStateUpdate(resetGame.toObject());
 
     return Response.json({ success: true, gameState: resetGame.toObject() });
-  } catch (error: any) {
-    const errorMessage = error?.message || 'Failed to reset game';
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to reset game';
     console.error('[ResetSingleton] Error:', errorMessage);
     return Response.json({ error: errorMessage }, { status: 500 });
   }

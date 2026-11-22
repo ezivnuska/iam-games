@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { SIGNAL_HANDLERS } from './handlers'
+import { getIO } from '@/app/api/socket/io'
 
 export async function POST(request: NextRequest) {
     const secret = request.headers.get('x-internal-secret')
@@ -25,17 +26,16 @@ export async function POST(request: NextRequest) {
         }
 
         // Generic socket broadcast
-        if (typeof global.io === 'undefined') {
+        const io = getIO()
+        if (!io) {
             console.error('Socket.IO not initialized')
             return NextResponse.json({ error: 'Socket.IO not initialized' }, { status: 500 })
         }
 
-        const io = global.io as any
-
         if (excludeUserId) {
             const sockets = await io.fetchSockets()
             for (const socket of sockets) {
-                if (socket.userId !== excludeUserId) {
+                if ((socket.data as { userId?: string }).userId !== excludeUserId) {
                     if (room) {
                         if (socket.rooms.has(room)) socket.emit(event, data)
                     } else {

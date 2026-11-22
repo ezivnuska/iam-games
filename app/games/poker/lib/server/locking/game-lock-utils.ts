@@ -10,7 +10,7 @@ import { POKER_TIMERS } from '@/app/games/poker/lib/config/poker-constants';
  *
  * @throws Error if game not found or already being processed by recent operation
  */
-export async function acquireGameLock(gameId: string): Promise<any> {
+export async function acquireGameLock(gameId: string): Promise<PokerGameDocument> {
   const now = new Date();
   const lockExpiry = new Date(now.getTime() - POKER_TIMERS.GAME_LOCK_TIMEOUT_MS);
 
@@ -38,11 +38,11 @@ export async function acquireGameLock(gameId: string): Promise<any> {
     }
 
     // Check if lock is stale (for better error message)
-    const lockAge = (existingGame as any).processingStartedAt
-      ? now.getTime() - new Date((existingGame as any).processingStartedAt).getTime()
+    const lockAge = existingGame.processingStartedAt
+      ? now.getTime() - new Date(existingGame.processingStartedAt).getTime()
       : 0;
 
-    console.warn(`[Game Lock] Failed to acquire lock for game ${gameId}, processing=${(existingGame as any).processing}, lock age=${lockAge}ms`);
+    console.warn(`[Game Lock] Failed to acquire lock for game ${gameId}, processing=${existingGame.processing}, lock age=${lockAge}ms`);
     throw new Error('Game is currently being processed');
   }
 
@@ -105,8 +105,8 @@ export async function saveGameSafe(game: PokerGameDocument, context?: string): P
   try {
     await game.save();
     return true;
-  } catch (error: any) {
-    if (error.name === 'VersionError' || error.message?.includes('version')) {
+  } catch (error: unknown) {
+    if (error instanceof Error && (error.name === 'VersionError' || error.message?.includes('version'))) {
       return false;
     }
     throw error;

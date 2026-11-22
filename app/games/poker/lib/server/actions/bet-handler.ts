@@ -2,6 +2,7 @@
 // Complete bet action flow
 
 import type { Player } from '@/app/games/poker/lib/definitions/poker';
+import type { PokerGameDocument } from '@/app/games/poker/lib/models/poker-game';
 import { ActionHistoryType } from '@/app/games/poker/lib/definitions/action-history';
 import { POKER_TIMERS, POKER_RETRY_CONFIG } from '@/app/games/poker/lib/config/poker-constants';
 import { PokerSocketEmitter } from '@/app/lib/utils/socket-helper';
@@ -19,7 +20,7 @@ import { finalizeActionAndContinue } from './action-helpers';
  * @returns Object with validation status and context data
  */
 async function validateBetRequest(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   chipCount: number
 ): Promise<{
@@ -93,7 +94,7 @@ async function validateBetRequest(
  * Process the actual bet amount and update game state
  */
 function processBetAmountAndUpdateState(
-  game: any,
+  game: PokerGameDocument,
   playerIndex: number,
   player: Player,
   chipCount: number
@@ -115,7 +116,7 @@ function processBetAmountAndUpdateState(
  * @returns true if notification was emitted, false if duplicate was detected
  */
 async function emitBetNotification(
-  game: any,
+  game: PokerGameDocument,
   playerId: string,
   player: Player,
   chipCount: number,
@@ -128,7 +129,7 @@ async function emitBetNotification(
   const oneSecondAgo = new Date(now.getTime() - POKER_TIMERS.ACTION_HISTORY_DEDUP_WINDOW_MS);
   const isBlindPost = false; // Regular play bets are never blind posts
 
-  const recentBetActions = game.actionHistory.filter((action: any) =>
+  const recentBetActions = game.actionHistory.filter(action =>
     action.actionType === ActionHistoryType.PLAYER_BET &&
     action.playerId === playerId &&
     action.stage === game.stage &&

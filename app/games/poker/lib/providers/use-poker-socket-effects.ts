@@ -5,7 +5,9 @@
 import { useEffect } from 'react';
 import type { Socket } from 'socket.io-client';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
-import type { Player, Card } from '@/app/games/poker/lib/definitions/poker';
+import type { Player, Card, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
+import type { PokerWinner } from '@/app/lib/socket/events';
+import type { User } from '@/app/lib/definitions';
 
 import {
   createStateUpdateHandler,
@@ -37,24 +39,24 @@ import type { NotificationType } from './notification-provider';
 export interface PokerSocketEffectsDeps {
   socket: Socket | null;
   gameId: string | null;
-  user: any;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   stateRef: React.MutableRefObject<GameStateSnapshot>;
   updaters: StateUpdaters;
   resetGameState: () => void;
   setAvailableGames: React.Dispatch<React.SetStateAction<Array<{ id: string; code: string; creatorId: string | null }>>>;
   setStage: (stage: number) => void;
   setCommunalCards: (cards: Card[]) => void;
-  setWinner: (winner: any) => void;
-  setActionTimer: React.Dispatch<React.SetStateAction<any>>;
-  setActionHistory: (history: any[]) => void;
+  setWinner: (winner?: PokerWinner) => void;
+  setActionTimer: React.Dispatch<React.SetStateAction<SerializedActionTimer | undefined>>;
+  setActionHistory: (history: unknown[]) => void;
   setIsActionProcessing: (processing: boolean) => void;
   setPendingAction: (action: { type: 'bet' | 'fold' | 'call' | 'raise'; playerId: string } | null) => void;
   setAutoAdvanceMode: (mode: boolean) => void;
   playSound: (sound: PokerSoundType) => void;
   setCurrentPlayerIndex: (index: number) => void;
   setDealerButtonPosition: (position: number) => void;
-  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: any }) => void;
+  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: Record<string, unknown> }) => void;
   clearAllPlayerNotifications?: () => void;
 }
 

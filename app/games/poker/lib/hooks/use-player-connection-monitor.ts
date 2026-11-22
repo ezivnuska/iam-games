@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Socket } from 'socket.io-client';
 
 interface ConnectionMonitorConfig {
   gameId: string | null;
@@ -103,7 +104,7 @@ export function usePlayerConnectionMonitor({
  * Hook to monitor socket connection status
  */
 export function useSocketConnectionMonitor(
-  socket: any,
+  socket: Socket | null,
   onDisconnect?: () => void,
   onReconnect?: () => void
 ) {

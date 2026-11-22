@@ -6,7 +6,7 @@ import { useEffect, useState, RefObject } from 'react';
 
 export function useResponsiveSquareSize<T extends HTMLElement = HTMLElement>(
     containerRef: RefObject<T>,
-    dependencies: any[] = [],
+    dependencies: unknown[] = [],
     bottomOffset: number = 0
 ): number {
     const [size, setSize] = useState<number>(0);

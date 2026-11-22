@@ -1,5 +1,7 @@
 // app/lib/providers/poker/poker-api-actions.ts
 
+import type { Socket } from 'socket.io-client';
+import type { User } from '@/app/lib/definitions';
 import type { PokerStateUpdatePayload } from '@/app/lib/socket/events';
 
 // ============= API Action Functions =============
@@ -9,9 +11,9 @@ import type { PokerStateUpdatePayload } from '@/app/lib/socket/events';
 
 export const createJoinGameAction = (
   setGameId: (id: string) => void,
-  socket: any,
+  socket: Socket,
   username?: string,
-  setUser?: (user: any) => void
+  setUser?: (user: User | null) => void
 ) => {
   return async (gameId: string, guestUsername?: string) => {
     try {
@@ -30,11 +32,11 @@ export const createJoinGameAction = (
       socket.emit('poker:join_game', { gameId, username: usernameToSend });
 
       // Listen for success/error responses (one-time listeners)
-      const successHandler = (data: any) => {
+      const successHandler = () => {
         socket.off('poker:join_error', errorHandler);
       };
 
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         const errorMessage = data.error || 'Failed to join game';
 
         // Check if error is about game being locked
@@ -63,7 +65,7 @@ export const createJoinGameAction = (
   };
 };
 
-export const createPlaceBetAction = (gameId: string | null, socket: any) => {
+export const createPlaceBetAction = (gameId: string | null, socket: Socket) => {
   return async (chipCount: number = 1) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Place Bet] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -79,7 +81,7 @@ export const createPlaceBetAction = (gameId: string | null, socket: any) => {
         socket.off('poker:bet_error', errorHandler);
       };
 
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         const errorMessage = data.error || 'Failed to place bet';
         console.error('[Place Bet]', errorMessage);
         alert(`Failed to place bet: ${errorMessage}`);
@@ -95,7 +97,7 @@ export const createPlaceBetAction = (gameId: string | null, socket: any) => {
   };
 };
 
-export const createFoldAction = (gameId: string | null, socket: any) => {
+export const createFoldAction = (gameId: string | null, socket: Socket) => {
   return async () => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Fold] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -111,7 +113,7 @@ export const createFoldAction = (gameId: string | null, socket: any) => {
         socket.off('poker:fold_error', errorHandler);
       };
 
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         const errorMessage = data.error || 'Failed to fold';
         console.error('[Fold]', errorMessage);
         alert(`Failed to fold: ${errorMessage}`);
@@ -131,8 +133,8 @@ export const createLeaveGameAction = (
   gameId: string | null,
   resetGameState: () => void,
   setAvailableGames: React.Dispatch<React.SetStateAction<Array<{ id: string; code: string; creatorId: string | null }>>>,
-  socket: any,
-  user: any
+  socket: Socket,
+  user: User | null
 ) => {
   return async () => {
     if (!gameId || !socket || !socket.connected) {
@@ -145,7 +147,7 @@ export const createLeaveGameAction = (
       socket.emit('poker:leave_game', { gameId });
 
       // Listen for success/error responses (one-time listeners)
-      const successHandler = (data: any) => {
+      const successHandler = (data: { gameState?: { deleted?: boolean } }) => {
         // Clear guest credentials when guest explicitly leaves game
         if (user?.isGuest) {
           try {
@@ -168,7 +170,7 @@ export const createLeaveGameAction = (
         socket.off('poker:leave_error', errorHandler);
       };
 
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         const errorMessage = data.error || 'Failed to leave game';
         console.error('[Leave Game]', errorMessage);
         alert(`Failed to leave game: ${errorMessage}`);
@@ -207,7 +209,7 @@ export const createDeleteGameAction = (
   };
 };
 
-export const createSetTurnTimerAction = (gameId: string | null, socket: any) => {
+export const createSetTurnTimerAction = (gameId: string | null, socket: Socket) => {
   return async (timerAction: 'fold' | 'call' | 'check' | 'bet' | 'raise', betAmount?: number) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Timer] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -223,7 +225,7 @@ export const createSetTurnTimerAction = (gameId: string | null, socket: any) => 
         socket.off('poker:timer_error', errorHandler);
       };
 
-      const errorHandler = (data: any) => {
+      const errorHandler = (data: { error?: string }) => {
         const errorMessage = data.error || 'Failed to set timer action';
         console.error('[Timer]', errorMessage);
         socket.off('poker:timer_success', successHandler);
@@ -237,7 +239,7 @@ export const createSetTurnTimerAction = (gameId: string | null, socket: any) => 
   };
 };
 
-export const createSetPresenceAction = (gameId: string | null, socket: any) => {
+export const createSetPresenceAction = (gameId: string | null, socket: Socket) => {
   return async (isAway: boolean) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Presence] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);

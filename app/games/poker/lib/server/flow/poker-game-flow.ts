@@ -1,7 +1,7 @@
 // app/lib/server/poker/poker-game-flow.ts
 
 import { determineWinner } from '@/app/games/poker/lib/utils/poker';
-import type { Bet, Player, GameStageProps, WinnerInfo, PotInfo } from '@/app/games/poker/lib/definitions/poker';
+import type { Bet, Card, Player, GameStageProps, WinnerInfo, PotInfo } from '@/app/games/poker/lib/definitions/poker';
 import { GameStage } from '@/app/games/poker/lib/definitions/poker';
 import { PokerBalance } from '@/app/games/poker/lib/models/poker-balance';
 import { findPlayerByUsername } from '@/app/games/poker/lib/utils/player-helpers';
@@ -13,10 +13,10 @@ import { calculateSidePots } from '@/app/games/poker/lib/utils/side-pot-calculat
 
 // Type for Mongoose game document with common methods
 interface PokerGameDoc {
-  _id: any;
+  _id: unknown;
   players: Player[];
-  deck: any[];
-  communalCards: any[];
+  deck: Card[];
+  communalCards: Card[];
   pot: Bet[];
   pots?: PotInfo[];
   stage: number;
@@ -27,10 +27,10 @@ interface PokerGameDoc {
   locked: boolean;
   stages?: GameStageProps[];
   actionHistory: GameActionHistory[];
-  actionTimer?: any;
+  actionTimer?: { selectedAction?: string };
   markModified: (path: string) => void;
   modifiedPaths: () => string[];
-  save: () => Promise<any>;
+  save: () => Promise<unknown>;
 }
 
 /**
