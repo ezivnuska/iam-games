@@ -6,6 +6,20 @@ import { createContext, useContext, useState, useEffect } from "react";
 import type { AppUser, User } from "@/app/lib/definitions";
 import { UserRole } from "@/app/lib/definitions/user";
 
+function partialUser(session: Pick<AppUser, 'id' | 'username' | 'role'>): User {
+    return {
+        id: session.id,
+        username: session.username,
+        role: session.role,
+        email: '',
+        bio: '',
+        avatar: null,
+        verified: false,
+        createdAt: '',
+        updatedAt: '',
+    };
+}
+
 type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "signing-out";
 
 export function createGuestUser(): User {
@@ -45,40 +59,30 @@ interface UserProviderProps {
 }
 
 export function UserProvider({ children, initialUser }: UserProviderProps) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(initialUser ? partialUser(initialUser) : null);
     const [token, setToken] = useState<string | null>(null);
-    const [status, setStatus] = useState<AuthStatus>("loading");
+    const [status, setStatus] = useState<AuthStatus>(initialUser ? "authenticated" : "unauthenticated");
 
     const [userCache] = useState<Map<string, User>>(new Map());
 
     useEffect(() => {
-        async function fetchFullUser() {
-            if (!initialUser) {
-                setUser(null);
-                setStatus("unauthenticated");
-                return;
-            }
+        if (!initialUser) {
+            setUser(null);
+            setStatus("unauthenticated");
+            return;
+        }
 
-            setStatus("loading");
-            try {
-                const res = await fetch("/api/users/me");
-                if (!res.ok) {
-                    setUser(null);
-                    setStatus("unauthenticated");
-                    return;
-                }
-                const fullUser: User = await res.json();
+        // Partial data is already in state — hydrate full profile in the background.
+        fetch("/api/users/me")
+            .then(res => res.ok ? res.json() : Promise.reject(new Error('fetch failed')))
+            .then(async (fullUser: User) => {
                 setUser(fullUser);
 
-                // Fetch socket auth token before marking authenticated so the
-                // socket registers with a valid token on first connect.
                 const tokenRes = await fetch("/api/auth/session-token");
                 if (tokenRes.ok) {
                     const data = await tokenRes.json();
                     setToken(data.token ?? null);
                 }
-
-                setStatus("authenticated");
 
                 try {
                     localStorage.removeItem('poker_guest_id');
@@ -87,15 +91,13 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
                 } catch (e) {
                     console.warn('Failed to clear guest credentials on authentication:', e);
                 }
-            } catch (err) {
+            })
+            .catch(err => {
                 console.error("Failed to fetch full user:", err);
                 setUser(null);
                 setStatus("unauthenticated");
-            }
-        }
-
-        fetchFullUser();
-    }, [initialUser]);
+            });
+    }, [initialUser?.id]);
 
     async function fetchUserById(id: string): Promise<User | null> {
         if (userCache.has(id)) return userCache.get(id)!;
