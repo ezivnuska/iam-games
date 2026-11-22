@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
                 source: '/:path*',
                 headers: [
                     { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                    { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                    { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+                    { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
                     // Allow wss: for Socket.IO. If nginx also sends a CSP header the
                     // browser applies both; ensure nginx does not block wss: either.
                     { key: 'Content-Security-Policy', value: "connect-src 'self' wss: ws: https: http:" },
