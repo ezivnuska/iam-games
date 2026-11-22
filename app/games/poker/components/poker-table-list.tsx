@@ -9,15 +9,23 @@ import CommunalCards from './communal-cards';
 import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
 import PlayerRow from './player-row';
-import LayoutToggle from './layout-toggle';
 import GuestUsernameModal from './guest-username-modal';
 import { StaleGameModal } from './stale-game-modal';
 import { Button } from '@iam/ui';
-import { getBlindPositions } from './player-slots';
 import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
-import type { PokerLayout } from '@/app/games/poker/lib/hooks/use-poker-layout';
 
 const MAX_SLOTS = 5;
+
+function getBlindPositions(dealerButtonPosition: number, playerCount: number) {
+    if (playerCount < 2) return { smallBlindPos: -1, bigBlindPos: -1 };
+    const smallBlindPos = playerCount === 2
+        ? dealerButtonPosition
+        : (dealerButtonPosition + 1) % playerCount;
+    const bigBlindPos = playerCount === 2
+        ? (dealerButtonPosition + 1) % playerCount
+        : (dealerButtonPosition + 2) % playerCount;
+    return { smallBlindPos, bigBlindPos };
+}
 
 interface PokerTableListProps {
     showPlayerControls: boolean;
@@ -25,8 +33,6 @@ interface PokerTableListProps {
     actionTriggered: boolean;
     showStaleModal: boolean;
     handleStaleReset: () => void;
-    layout: PokerLayout;
-    toggleLayout: () => void;
 }
 
 function EmptySlotRow({ gameId, locked, onJoinGame, isClickable }: {
@@ -103,8 +109,6 @@ export default function PokerTableList({
     actionTriggered,
     showStaleModal,
     handleStaleReset,
-    layout,
-    toggleLayout,
 }: PokerTableListProps) {
     const { players } = usePlayers();
     const { locked, currentPlayerIndex, dealerButtonPosition } = useGameState();
@@ -175,12 +179,6 @@ export default function PokerTableList({
 
     return (
         <div className={`relative flex flex-1 bg-gray-900 h-dvh ${isLandscape ? 'flex-row' : 'flex-col'}`}>
-            <LayoutToggle
-                layout={layout}
-                onToggle={toggleLayout}
-                className='absolute top-2 right-2 z-[9999]'
-            />
-
             {isLandscape ? (
                 <>
                     {/* Landscape: players + controls on left, table panel on right */}

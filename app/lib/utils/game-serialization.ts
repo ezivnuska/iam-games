@@ -25,7 +25,7 @@ export interface SerializedGame {
   updatedAt: string;
 }
 
-type RawGame = PokerGameDocument & { toObject?: () => Record<string, unknown> };
+type RawGame = { _id: string | { toString(): string }; toObject?: () => Record<string, unknown> };
 
 export function serializeGame(game: RawGame): SerializedGame {
   const obj: Record<string, unknown> = typeof game.toObject === 'function'

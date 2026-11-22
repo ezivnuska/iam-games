@@ -32,7 +32,7 @@ export async function acquireGameLock(gameId: string): Promise<PokerGameDocument
   );
 
   if (!lockResult) {
-    const existingGame = await PokerGame.findById(gameId).lean();
+    const existingGame = (await PokerGame.findById(gameId).lean()) as PokerGameDocument | null;
     if (!existingGame) {
       throw new Error('Game not found');
     }

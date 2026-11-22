@@ -12,6 +12,7 @@
  */
 
 import { PokerGame, type PokerGameDocument } from '../../models/poker-game';
+import type { Player } from '../../definitions/poker';
 import {
   getStepDefinition,
   getCurrentStep,
@@ -193,7 +194,7 @@ export async function checkEarlyCompletion(gameId: string): Promise<boolean> {
   if (!game) return false;
 
   // Count players who haven't folded (includes all-in players)
-  const playersInHand = game.players.filter(p => !p.folded);
+  const playersInHand = game.players.filter((p: Player) => !p.folded);
 
   // Early completion only if exactly one player remains (everyone else folded)
   if (playersInHand.length === 1) {
@@ -411,7 +412,7 @@ async function executeDealHoleCards(gameId: string): Promise<number> {
   await PokerSocketEmitter.emitCardsDealt({
     stage: game.stage,
     communalCards: game.communalCards,
-    players: game.players.map(p => ({
+    players: game.players.map((p: Player & { toObject(): Record<string, unknown> }) => ({
       ...p.toObject(),
       hand: p.hand,
     })),

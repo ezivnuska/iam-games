@@ -78,14 +78,15 @@ export const createStateUpdateHandler = (deps: SocketHandlerDeps) => {
     }
 
     // If this is a guest user who returned (ID is guest-pending), update their ID from the players array
-    if (deps.user?.isGuest && deps.user?.id === 'guest-pending' && deps.user?.username && deps.setUser) {
+    const user = deps.user;
+    if (user?.isGuest && user?.id === 'guest-pending' && user?.username && deps.setUser) {
       const actualPlayer = payload.players.find(p =>
         p.id.startsWith('guest-') &&
-        p.username === deps.user.username &&
+        p.username === user.username &&
         !p.isAI
       );
       if (actualPlayer) {
-        deps.setUser({ ...deps.user, id: actualPlayer.id });
+        deps.setUser({ ...user, id: actualPlayer.id });
       }
     }
 
@@ -118,8 +119,8 @@ export const createGameCreatedHandler = (
 ) => {
   return (payload: { gameId?: string; _id?: string; code?: string; game?: { code?: string; players?: Array<{ id: string }> }; players?: Array<{ id: string }> }) => {
     const newGame = {
-      id: payload.gameId || payload._id?.toString(),
-      code: payload.game?.code || payload.code,
+      id: payload.gameId || payload._id?.toString() || '',
+      code: payload.game?.code || payload.code || '',
       creatorId: payload.game?.players?.[0]?.id || payload.players?.[0]?.id || null
     };
     setAvailableGames(prev => {
@@ -270,7 +271,7 @@ export const createRoundCompleteHandler = (
   setWinner: (winner?: PokerWinner) => void,
   updatePlayers: (players: Player[]) => void,
   playSound?: (sound: PokerSoundType) => void,
-  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: Record<string, unknown> }) => void,
+  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: import('@/app/lib/socket/events').PokerNotificationPayload }) => void,
   gameId?: string | null
 ) => {
   return (payload: PokerRoundCompletePayload) => {

@@ -540,7 +540,7 @@ async function resetGameForSinglePlayer(game: PokerGameDocument, gameId: string)
 export async function removePlayer(
   gameId: string,
   user: { id: string; username: string }
-): Promise<Record<string, unknown>> {
+): Promise<PokerGameDocument> {
   // Retry logic for version conflicts
   return withRetry(async () => {
     const game = await PokerGame.findById(gameId);
@@ -577,6 +577,6 @@ export async function removePlayer(
 
     // Return fresh game state
     const finalGame = await PokerGame.findById(gameId);
-    return finalGame ? finalGame.toObject() : game.toObject();
+    return (finalGame ?? game) as PokerGameDocument;
   }, POKER_RETRY_CONFIG);
 }

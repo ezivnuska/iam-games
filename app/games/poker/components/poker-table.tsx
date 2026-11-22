@@ -10,8 +10,6 @@ import { SOCKET_EVENTS } from '@/app/lib/socket/events';
 import type { PokerNotificationPayload } from '@/app/lib/socket/events';
 import type { User } from '@/app/lib/definitions';
 import { UserRole } from '@/app/lib/definitions/user';
-import { usePokerLayout } from '@/app/games/poker/lib/hooks/use-poker-layout';
-import PokerTableClassic from './poker-table-classic';
 import PokerTableList from './poker-table-list';
 
 export default function PokerTable() {
@@ -19,8 +17,6 @@ export default function PokerTable() {
   const { stage, locked, currentPlayerIndex, winner, isLoading, canPlayerAct } = useGameState();
   const { user, status, setUser } = useUser();
   const { socket } = useSocket();
-  const { layout, toggleLayout } = usePokerLayout();
-
   // Restore guest user from localStorage on page load (for reconnection after refresh)
   const [guestRestorationComplete, setGuestRestorationComplete] = useState(false);
 
@@ -129,17 +125,13 @@ export default function PokerTable() {
 
   if (isLoading || !guestRestorationComplete) return null;
 
-  const sharedProps = {
-    showPlayerControls,
-    handleActionTaken,
-    actionTriggered,
-    showStaleModal,
-    handleStaleReset,
-    layout,
-    toggleLayout,
-  };
-
-  return layout === 'list'
-    ? <PokerTableList {...sharedProps} />
-    : <PokerTableClassic {...sharedProps} />;
+  return (
+    <PokerTableList
+      showPlayerControls={showPlayerControls}
+      handleActionTaken={handleActionTaken}
+      actionTriggered={actionTriggered}
+      showStaleModal={showStaleModal}
+      handleStaleReset={handleStaleReset}
+    />
+  );
 }

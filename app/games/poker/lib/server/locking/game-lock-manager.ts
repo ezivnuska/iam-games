@@ -71,7 +71,7 @@ async function initializeGameAtLock(gameId: string): Promise<void> {
         // Migrate players from old chips array format if needed
         const { getChipTotal } = await import('@/app/games/poker/lib/utils/poker');
         let migrationNeeded = false;
-        type LegacyPlayer = typeof gameToLock.players[number] & { chips?: unknown[] };
+        type LegacyPlayer = typeof gameToLock.players[number] & { chips?: import('../../definitions/poker').Chip[] };
         for (const player of gameToLock.players) {
           const legacyPlayer = player as LegacyPlayer;
           if (legacyPlayer.chips && Array.isArray(legacyPlayer.chips)) {

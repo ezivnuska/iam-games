@@ -3,6 +3,7 @@
 
 import { PokerBalance } from '@/app/games/poker/lib/models/poker-balance';
 import { POKER_GAME_CONFIG } from '@/app/games/poker/lib/config/poker-constants';
+import type { Chip } from '@/app/games/poker/lib/definitions/poker';
 
 /**
  * Get player's chip balance or default starting chips
@@ -30,7 +31,7 @@ export async function getPlayerBalanceOrDefault(
   const balanceDoc = await PokerBalance.findOne({ userId }).lean();
 
   if (balanceDoc) {
-    const balance = balanceDoc as typeof balanceDoc & { chips?: unknown[] };
+    const balance = balanceDoc as typeof balanceDoc & { chipCount?: number; chips?: Chip[] };
 
     // Check if balance has the new chipCount field
     if (typeof balance.chipCount === 'number' && balance.chipCount > 0) {

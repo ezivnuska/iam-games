@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import type { Socket } from 'socket.io-client';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
 import type { Player, Card, SerializedActionTimer } from '@/app/games/poker/lib/definitions/poker';
-import type { PokerWinner } from '@/app/lib/socket/events';
+import type { PokerWinner, PokerNotificationPayload } from '@/app/lib/socket/events';
 import type { User } from '@/app/lib/definitions';
 
 import {
@@ -56,7 +56,7 @@ export interface PokerSocketEffectsDeps {
   playSound: (sound: PokerSoundType) => void;
   setCurrentPlayerIndex: (index: number) => void;
   setDealerButtonPosition: (position: number) => void;
-  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: Record<string, unknown> }) => void;
+  showNotification?: (notification: { message: string; type: NotificationType; duration: number; onComplete?: () => void; metadata?: PokerNotificationPayload }) => void;
   clearAllPlayerNotifications?: () => void;
 }
 
@@ -173,7 +173,7 @@ export function usePokerSocketEffects(deps: PokerSocketEffectsDeps) {
         handleConnect,
         handleDisconnect,
         handleStateUpdate,
-        handleGameCreated,
+        handleGameCreated: handleGameCreated as (payload: unknown) => void,
         handleGameDeleted,
         handlePlayerJoined,
         handlePlayerLeft,

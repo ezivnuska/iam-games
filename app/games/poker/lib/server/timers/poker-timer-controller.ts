@@ -1,6 +1,7 @@
 // app/lib/server/poker/poker-timer-controller.ts
 
 import { PokerGame } from '@/app/games/poker/lib/models/poker-game';
+import type { Player } from '@/app/games/poker/lib/definitions/poker';
 import { GameActionType } from '@/app/games/poker/lib/definitions/game-actions';
 import { validatePlayerExists } from '@/app/games/poker/lib/utils/player-helpers';
 import { withRetry } from '@/app/lib/utils/retry';
@@ -31,7 +32,7 @@ export async function startActionTimer(
 
   // Check if target player is away - default to fold if so
   const targetPlayer = targetPlayerId
-    ? game.players.find(p => p.id === targetPlayerId)
+    ? game.players.find((p: Player) => p.id === targetPlayerId)
     : null;
   const defaultAction = targetPlayer?.isAway ? 'fold' : undefined;
 

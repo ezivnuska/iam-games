@@ -3,6 +3,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import type { PokerNotificationPayload } from '@/app/lib/socket/events';
 
 // Notification types
 export type NotificationType = 'blind' | 'deal' | 'action' | 'info' | 'countdown';
@@ -13,7 +14,7 @@ export interface Notification {
   type: NotificationType;
   timestamp: number;
   duration: number; // Duration in ms (default 5000)
-  metadata?: Record<string, unknown>;
+  metadata?: PokerNotificationPayload;
   onComplete?: () => void; // Callback when notification timer completes
 }
 

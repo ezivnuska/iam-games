@@ -11,7 +11,7 @@ import type { PokerStateUpdatePayload } from '@/app/lib/socket/events';
 
 export const createJoinGameAction = (
   setGameId: (id: string) => void,
-  socket: Socket,
+  socket: Socket | null,
   username?: string,
   setUser?: (user: User | null) => void
 ) => {
@@ -65,7 +65,7 @@ export const createJoinGameAction = (
   };
 };
 
-export const createPlaceBetAction = (gameId: string | null, socket: Socket) => {
+export const createPlaceBetAction = (gameId: string | null, socket: Socket | null) => {
   return async (chipCount: number = 1) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Place Bet] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -97,7 +97,7 @@ export const createPlaceBetAction = (gameId: string | null, socket: Socket) => {
   };
 };
 
-export const createFoldAction = (gameId: string | null, socket: Socket) => {
+export const createFoldAction = (gameId: string | null, socket: Socket | null) => {
   return async () => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Fold] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -133,7 +133,7 @@ export const createLeaveGameAction = (
   gameId: string | null,
   resetGameState: () => void,
   setAvailableGames: React.Dispatch<React.SetStateAction<Array<{ id: string; code: string; creatorId: string | null }>>>,
-  socket: Socket,
+  socket: Socket | null,
   user: User | null
 ) => {
   return async () => {
@@ -209,7 +209,7 @@ export const createDeleteGameAction = (
   };
 };
 
-export const createSetTurnTimerAction = (gameId: string | null, socket: Socket) => {
+export const createSetTurnTimerAction = (gameId: string | null, socket: Socket | null) => {
   return async (timerAction: 'fold' | 'call' | 'check' | 'bet' | 'raise', betAmount?: number) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Timer] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
@@ -239,7 +239,7 @@ export const createSetTurnTimerAction = (gameId: string | null, socket: Socket) 
   };
 };
 
-export const createSetPresenceAction = (gameId: string | null, socket: Socket) => {
+export const createSetPresenceAction = (gameId: string | null, socket: Socket | null) => {
   return async (isAway: boolean) => {
     if (!gameId || !socket || !socket.connected) {
       console.error('[Presence] Invalid state - gameId:', gameId, 'socket connected:', socket?.connected);
