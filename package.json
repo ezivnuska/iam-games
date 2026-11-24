@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' tsx server.ts",
+    "prebuild": "rm -f tsconfig.tsbuildinfo",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "NODE_ENV=production tsx server.ts",
     "next:dev": "next dev",
