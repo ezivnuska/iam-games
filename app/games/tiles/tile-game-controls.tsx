@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button, Modal, UserAvatar, useHorizontalLayout, useSmallScreen } from '@iam/ui';
+import { Button, Modal, UserAvatar, useHorizontalLayout } from '@iam/ui';
+import { useSmallScreen } from '@/app/lib/hooks/use-small-screen';
 import { useTiles } from '@/app/lib/providers/tile-provider';
 import { GameStatus } from '@/app/lib/definitions/tiles';
 import Leaderboard from './leaderboard';
