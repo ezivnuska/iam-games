@@ -8,7 +8,7 @@ import { useTiles } from '@/app/lib/providers/tile-provider'
 import { useHorizontalLayout } from '@iam/ui'
 import { useResponsiveSquareSize } from '@/app/lib/hooks/use-responsive-square-size'
 
-export default function TileBoard({ bottomOffset = 0 }: { bottomOffset?: number }) {
+export default function TileBoard() {
 
     const {
         level,
@@ -27,7 +27,7 @@ export default function TileBoard({ bottomOffset = 0 }: { bottomOffset?: number 
     const horizontalLayout = useHorizontalLayout()
 
     // Calculate square size based on parent dimensions
-    const size = useResponsiveSquareSize(containerRef, [horizontalLayout], bottomOffset)
+    const size = useResponsiveSquareSize(containerRef, [horizontalLayout])
 
     // Calculate item size based on container size
     const itemSize = size > 0 ? (size - 2) / level : 0

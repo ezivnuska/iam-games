@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@iam/db": "file:../iam-next-mongo/packages/db",
-    "@iam/shared-types": "file:../iam-next-mongo/packages/shared-types",
-    "@iam/ui": "file:../iam-next-mongo/packages/ui",
+    "@iam/db": "link:../iam-next-mongo/packages/db",
+    "@iam/shared-types": "link:../iam-next-mongo/packages/shared-types",
+    "@iam/ui": "link:../iam-next-mongo/packages/ui",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "dotenv-expand": "^12.0.3",

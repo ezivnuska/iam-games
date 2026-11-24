@@ -19,6 +19,7 @@ function ShellInner({ children, loggedIn }: ClientShellProps) {
             userControls={loggedIn ? <UserButton /> : undefined}
             nav={loggedIn ? undefined : <SignInButton />}
             footer={footer}
+            centerAside
         >
             {children}
         </Screen>

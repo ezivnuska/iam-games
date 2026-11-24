@@ -6,8 +6,7 @@ import { useEffect, useState, RefObject } from 'react';
 
 export function useResponsiveSquareSize<T extends HTMLElement = HTMLElement>(
     containerRef: RefObject<T>,
-    dependencies: unknown[] = [],
-    bottomOffset: number = 0
+    dependencies: unknown[] = []
 ): number {
     const [size, setSize] = useState<number>(0);
 
@@ -24,7 +23,7 @@ export function useResponsiveSquareSize<T extends HTMLElement = HTMLElement>(
             const parentHeight = parent.clientHeight;
 
             const rect = containerRef.current.getBoundingClientRect();
-            const availableVerticalSpace = window.innerHeight - rect.top - bottomOffset;
+            const availableVerticalSpace = window.innerHeight - rect.top;
 
             // Skip parentHeight if 0 — happens when parent height is derived from children (circular)
             const candidates = parentHeight > 0
