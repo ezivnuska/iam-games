@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     }}
                 />
             </head>
-            <body className={`${ubuntu.className} antialiased flex min-h-screen flex-col overflow-x-hidden`}>
+            <body className={`${ubuntu.className} antialiased flex h-dvh flex-col overflow-hidden`}>
                 <UserProvider initialUser={initialUser}>
                     <ThemeProvider>
                         <SocketProvider>
