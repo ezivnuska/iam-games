@@ -22,8 +22,12 @@ export function useResponsiveSquareSize<T extends HTMLElement = HTMLElement>(
             const parentWidth = parent.clientWidth;
             const parentHeight = parent.clientHeight;
 
-            const rect = containerRef.current.getBoundingClientRect();
-            const availableVerticalSpace = window.innerHeight - rect.top;
+            // Use parent's top (stable) rather than the board's top (shifts as the board resizes/centers)
+            const parentRect = parent.getBoundingClientRect();
+            const footerHeight = parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue('--footer-height')
+            ) || 0;
+            const availableVerticalSpace = window.innerHeight - parentRect.top - footerHeight;
 
             // Skip parentHeight if 0 — happens when parent height is derived from children (circular)
             const candidates = parentHeight > 0
