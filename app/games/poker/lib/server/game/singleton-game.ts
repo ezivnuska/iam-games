@@ -12,8 +12,40 @@ import { GameStage } from '@/app/games/poker/lib/definitions/poker';
 export async function getOrCreateSingletonGame() {
   const SINGLETON_CODE = 'MAIN';
 
+  const STALE_THRESHOLD_MS = 60 * 1000;
+
   // Try to find existing singleton game
   let game = await PokerGame.findOne({ code: SINGLETON_CODE });
+
+  if (game) {
+    // Reset if stale: locked with no activity for over a minute
+    const timeSinceUpdate = Date.now() - game.updatedAt.getTime();
+    const isStale = game.locked && timeSinceUpdate > STALE_THRESHOLD_MS;
+
+    if (isStale) {
+      console.log('[Singleton] Stale game detected on fetch, resetting:', {
+        timeSinceUpdate: Math.round(timeSinceUpdate / 1000) + 's',
+      });
+      try {
+        game = await resetSingletonGame(game._id.toString());
+      } catch (resetError) {
+        console.error('[Singleton] Error resetting stale game:', resetError);
+      }
+    } else {
+      // Ensure AI is present in a non-stale game
+      const hasAI = game.players.some((p: { isAI?: boolean }) => p.isAI);
+      if (!hasAI && !game.locked) {
+        try {
+          const { addAIPlayerToGame } = await import('../ai/ai-player-manager');
+          await addAIPlayerToGame(game._id.toString());
+          game = await PokerGame.findById(game._id);
+          if (!game) throw new Error('Failed to refresh game after adding AI');
+        } catch (aiError) {
+          console.error('[Singleton] Error adding AI player to existing game:', aiError);
+        }
+      }
+    }
+  }
 
   // Create if it doesn't exist
   if (!game) {
