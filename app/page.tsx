@@ -1,8 +1,9 @@
-import { PageHeader, PageContent } from '@iam/ui';
+import { PageContent } from '@iam/ui';
 import Link from 'next/link';
 import { PuzzlePieceIcon } from '@heroicons/react/24/solid';
 import { Metadata } from 'next';
 import PokerChipIcon from './ui/icons/poker-chip-icon';
+import { SetTitle } from './lib/providers/title-provider';
 
 export const metadata: Metadata = {
     title: 'IAM Games',
@@ -27,7 +28,7 @@ const games = [
 export default function HomePage() {
     return (
         <PageContent scrollable={false}>
-            <PageHeader subtitle='Games' />
+            <SetTitle title='Games' />
             <div className='grid gap-4 px-2 py-4'>
                 {games.map((game) => {
                     const IconComponent = game.icon;

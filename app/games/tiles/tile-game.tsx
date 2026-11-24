@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
-import { ArrowLeftIcon } from '@heroicons/react/20/solid'
-import { PageContent, PageHeader, useFooter } from '@iam/ui'
+import { PageContent, useFooter } from '@iam/ui'
+import { useSetTitle } from '@/app/lib/providers/title-provider'
 import TileBoard from './tile-board'
 import TileGameControls from './tile-game-controls'
 
 export default function TileGame() {
     const { setFooter } = useFooter()
+    useSetTitle('Tiles')
 
     useEffect(() => {
         setFooter(<TileGameControls />)
@@ -38,20 +38,8 @@ export default function TileGame() {
         }
     }, [])
 
-    const header = (
-        <PageHeader
-            title='Tiles'
-            actions={
-                <Link href='/games' className='flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors'>
-                    <ArrowLeftIcon className='h-4 w-4' />
-                    Games
-                </Link>
-            }
-        />
-    )
-
     return (
-        <PageContent header={header} scrollable={false} fullscreen>
+        <PageContent scrollable={false} fullscreen>
             <div className='flex flex-1 min-h-0 min-w-0 items-center justify-center'>
                 <TileBoard />
             </div>

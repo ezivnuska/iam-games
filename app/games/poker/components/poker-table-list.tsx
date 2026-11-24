@@ -162,10 +162,7 @@ export default function PokerTableList({
     });
 
     const tablePanel = (
-        <div className={isLandscape
-            ? 'flex flex-col items-center justify-center gap-4 bg-green-900 border-l border-green-700 px-4 py-4 w-2/5'
-            : 'flex flex-row items-center justify-center gap-6 px-4 py-3 bg-green-900 border-b border-green-700 min-h-[110px]'
-        }>
+        <div className='flex flex-1 min-h-0 flex-col items-center justify-center gap-4 bg-green-900 px-4 py-4'>
             <Pot />
             <CommunalCards />
         </div>
@@ -178,28 +175,17 @@ export default function PokerTableList({
     );
 
     return (
-        <div className={`relative flex flex-1 bg-gray-900 h-dvh ${isLandscape ? 'flex-row' : 'flex-col'}`}>
-            {isLandscape ? (
-                <>
-                    {/* Landscape: players + controls on left, table panel on right */}
-                    <div className='flex flex-1 flex-col min-h-0'>
-                        <div className='flex flex-1 flex-col overflow-y-auto px-2 py-2 gap-1'>
-                            {renderSlots()}
-                        </div>
-                        {dashboard}
-                    </div>
-                    {tablePanel}
-                </>
-            ) : (
-                <>
-                    {/* Portrait: table panel on top, players in middle, controls at bottom */}
-                    {tablePanel}
-                    <div className='flex flex-1 flex-col overflow-y-auto px-2 py-2 gap-1'>
-                        {renderSlots()}
-                    </div>
-                    {dashboard}
-                </>
-            )}
+        <div className={`relative flex flex-1 min-h-0 bg-gray-900 ${isLandscape ? 'flex-row' : 'flex-col'}`}>
+            {/* Game area — 60% */}
+            <div className={`flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
+                {tablePanel}
+                {dashboard}
+            </div>
+
+            {/* Player list — 40% */}
+            <div className='flex flex-col flex-[2] min-h-0 overflow-y-auto px-2 py-2 gap-1'>
+                {renderSlots()}
+            </div>
 
             {gameId && (
                 <Button

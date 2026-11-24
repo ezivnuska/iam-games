@@ -1,9 +1,9 @@
 'use client';
 
 import { Screen, FooterProvider, useFooter, useAppHeight } from '@iam/ui';
-import UserButton from '@/app/ui/header/user-button';
 import SignInButton from '@/app/ui/header/sign-in-button';
-
+import GameNav from '@/app/ui/header/game-nav';
+import { TitleProvider, useTitle } from '@/app/lib/providers/title-provider';
 interface ClientShellProps {
     children: React.ReactNode;
     loggedIn: boolean;
@@ -11,14 +11,18 @@ interface ClientShellProps {
 
 function ShellInner({ children, loggedIn }: ClientShellProps) {
     const { footer } = useFooter();
+    const { title, screenLayout } = useTitle();
     useAppHeight();
+
+    const showGameNav = loggedIn || !!title;
 
     return (
         <Screen
             brandHref='https://iameric.me'
-            userControls={loggedIn ? <UserButton /> : undefined}
+            userControls={showGameNav ? <GameNav title={title} /> : undefined}
             nav={loggedIn ? undefined : <SignInButton />}
             footer={footer}
+            layout={screenLayout}
             centerAside
         >
             {children}
@@ -29,7 +33,9 @@ function ShellInner({ children, loggedIn }: ClientShellProps) {
 export default function ClientShell({ children, loggedIn }: ClientShellProps) {
     return (
         <FooterProvider>
-            <ShellInner loggedIn={loggedIn}>{children}</ShellInner>
+            <TitleProvider>
+                <ShellInner loggedIn={loggedIn}>{children}</ShellInner>
+            </TitleProvider>
         </FooterProvider>
     );
 }
