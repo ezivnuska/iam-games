@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button, Modal, UserAvatar, useHorizontalLayout } from '@iam/ui';
+import { Button, Modal, UserAvatar, useHorizontalLayout, useSmallScreen } from '@iam/ui';
 import { useTiles } from '@/app/lib/providers/tile-provider';
 import { GameStatus } from '@/app/lib/definitions/tiles';
 import Leaderboard from './leaderboard';
@@ -15,6 +15,7 @@ export default function TileGameControls() {
     const { scores, status, ticks, time, setStatus, clearScores } = useTiles();
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const isLandscape = useHorizontalLayout() === true;
+    const isSmallScreen = useSmallScreen();
 
     const topScore = useMemo(() => scores.length > 0 ? scores[0] : null, [scores]);
 
@@ -28,20 +29,22 @@ export default function TileGameControls() {
         setShowLeaderboard(false);
     };
 
+    const hideLabel = isLandscape && isSmallScreen;
+
     const renderButton = () => {
         switch (status) {
             case GameStatus.IDLE:
                 return (
                     <Button onClick={startPlay} variant='link' className='gap-2'>
                         <PlayCircleIcon className='w-8 h-8' />
-                        <span className='text-lg'>Play</span>
+                        {!hideLabel && <span className='text-lg'>Play</span>}
                     </Button>
                 );
             case GameStatus.PLAYING:
                 return (
                     <Button onClick={pause} variant='link' className='gap-2'>
                         <PauseCircleIcon className='w-8 h-8' />
-                        <span className='text-lg'>Pause</span>
+                        {!hideLabel && <span className='text-lg'>Pause</span>}
                     </Button>
                 );
             case GameStatus.PAUSED:
@@ -49,18 +52,18 @@ export default function TileGameControls() {
                     <>
                         <Button onClick={unpause} variant='link' className='gap-2'>
                             <PlayCircleIcon className='w-8 h-8' />
-                            <span className='text-lg'>Resume</span>
+                            {!hideLabel && <span className='text-lg'>Resume</span>}
                         </Button>
                         <Button onClick={reset} variant='link' className='text-red-500 gap-2'>
                             <StopCircleIcon className='w-8 h-8' />
-                            <span className='text-lg'>Quit</span>
+                            {!hideLabel && <span className='text-lg'>Quit</span>}
                         </Button>
                     </>
                 );
             case GameStatus.RESOLVED:
                 return (
                     <Button onClick={startPlay} variant='default' className='gap-2'>
-                        Play again
+                        {!hideLabel && 'Play again'}
                     </Button>
                 );
             default:
