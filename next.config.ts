@@ -1,4 +1,9 @@
 import type { NextConfig } from 'next';
+import { resolve } from 'path';
+
+// Resolve mongoose from iam-games's own node_modules so that all bundles
+// (including transpiled @iam/db code) share a single module instance.
+const mongoosePath = resolve('./node_modules/mongoose');
 
 const nextConfig: NextConfig = {
     transpilePackages: ['@iam/shared-types', '@iam/db', '@iam/ui'],
@@ -44,6 +49,23 @@ const nextConfig: NextConfig = {
         },
     },
     webpack: (config, { isServer }) => {
+        if (isServer) {
+            // Pin ALL require('mongoose') calls to the same absolute path so that
+            // transpiled @iam/db code and native iam-games code share one instance.
+            const existingExternals = Array.isArray(config.externals)
+                ? config.externals
+                : config.externals ? [config.externals] : [];
+            config.externals = [
+                ({ request }: { request?: string }, callback: (err?: null, result?: string) => void) => {
+                    if (request === 'mongoose') {
+                        callback(null, `commonjs ${mongoosePath}`);
+                        return;
+                    }
+                    callback();
+                },
+                ...existingExternals,
+            ];
+        }
         if (!isServer) {
             config.resolve.alias = {
                 ...config.resolve.alias,
