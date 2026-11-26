@@ -19,9 +19,9 @@ export default function PokerTable() {
   useSetTitle('Poker');
   useSetScreenLayout('game');
   const { players } = usePlayers();
-  const { stage, locked, currentPlayerIndex, winner, isLoading, canPlayerAct } = useGameState();
+  const { stage, locked, currentPlayerIndex, winner, isLoading, canPlayerAct, setSelectedAction } = useGameState();
   const { gameId } = useViewers();
-  const { setTurnTimerAction } = usePokerActions();
+  const { setTurnTimerAction, leaveGame } = usePokerActions();
   const { user, status, setUser } = useUser();
   const { socket } = useSocket();
   const router = useRouter();
@@ -107,12 +107,47 @@ export default function PokerTable() {
 
   const handleLeave = useCallback(() => {
     if (userGameInfo.isUserInGame && gameId) {
-      setTurnTimerAction('fold');
+      const gameInProgress = locked && !winner;
+      if (gameInProgress) {
+        try { localStorage.setItem('poker_pending_leave', gameId); } catch {}
+        setTurnTimerAction('fold');
+      } else {
+        leaveGame();
+      }
     }
     router.push('/');
-  }, [userGameInfo.isUserInGame, gameId, setTurnTimerAction, router]);
+  }, [userGameInfo.isUserInGame, gameId, locked, winner, setTurnTimerAction, leaveGame, router]);
 
   useSetLeaveHandler(userGameInfo.isUserInGame ? handleLeave : null);
+
+  // On return: if a pending leave flag exists for this game, pre-select fold (still active)
+  // or auto-leave (game has since ended/reset). Falls back to winner check for no-Leave navigations.
+  useEffect(() => {
+    if (isLoading || !guestRestorationComplete || !gameId) return;
+
+    let pendingGameId: string | null = null;
+    try { pendingGameId = localStorage.getItem('poker_pending_leave'); } catch {}
+
+    if (pendingGameId === gameId && userGameInfo.isUserInGame) {
+      const gameInProgress = locked && !winner;
+      if (gameInProgress) {
+        setSelectedAction('fold');
+      } else {
+        try { localStorage.removeItem('poker_pending_leave'); } catch {}
+        leaveGame();
+      }
+      return;
+    }
+    if (pendingGameId === gameId && !userGameInfo.isUserInGame) {
+      try { localStorage.removeItem('poker_pending_leave'); } catch {}
+      return;
+    }
+
+    // Fallback: auto-leave if game ended and player is still listed (navigated away without Leave)
+    if (winner && userGameInfo.isUserInGame) {
+      leaveGame();
+    }
+  }, [isLoading, guestRestorationComplete, gameId, userGameInfo.isUserInGame, locked, winner, setSelectedAction, leaveGame]);
 
   useEffect(() => {
     if (currentPlayerIndex !== prevPlayerIndexRef.current) {
@@ -138,7 +173,10 @@ export default function PokerTable() {
   }, [socket, user?.id]);
 
   const showPlayerControls = locked && canPlayerAct && !actionTriggered && !winner && stage < 4;
-  const handleActionTaken = () => setActionTriggered(true);
+  const handleActionTaken = () => {
+    setActionTriggered(true);
+    try { localStorage.removeItem('poker_pending_leave'); } catch {}
+  };
 
   useEffect(() => {
     const prev = document.body.style.overscrollBehavior

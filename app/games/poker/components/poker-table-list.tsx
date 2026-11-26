@@ -73,7 +73,7 @@ function NotificationBar() {
                       && progress > 0;
 
     return (
-        <div className='px-2 pt-2'>
+        <div className='absolute top-2 left-2 right-2 z-10'>
             <div className='relative w-full h-10 overflow-hidden rounded-full bg-green-900 border flex items-center justify-center'>
                 {showProgress && (
                     <div
@@ -248,7 +248,7 @@ export default function PokerTableList({
     return (
         <div className={`relative flex flex-1 min-h-0 bg-gray-900 ${isLandscape ? 'flex-row' : 'flex-col'}`}>
             {/* Game area — 60% */}
-            <div className={`flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
+            <div className={`relative flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
                 <NotificationBar />
                 {tablePanel}
                 {dashboard}
