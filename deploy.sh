@@ -11,7 +11,7 @@ git reset --hard origin/main
 cd /var/www/iam-games
 
 echo "Pulling latest code..."
-git checkout -- pnpm-lock.yaml 2>/dev/null || true
+git checkout -- pnpm-lock.yaml tsconfig.json 2>/dev/null || true
 git pull origin main
 
 echo "Busting local package cache..."
