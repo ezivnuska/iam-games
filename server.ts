@@ -18,7 +18,6 @@ import { parse } from 'url'
 import next from 'next'
 import { Server, Socket } from 'socket.io'
 import { jwtVerify } from 'jose'
-import { registerWordDuelHandlers } from './app/games/word-duel/lib/socket-handlers'
 
 interface SocketData {
   userId: string
@@ -220,8 +219,6 @@ app.prepare().then(() => {
                 })
             } catch { /* Silently fail */ }
         })
-
-        registerWordDuelHandlers(io, socket)
 
         socket.on('disconnect', () => {
             if (socket.data.userId) {
