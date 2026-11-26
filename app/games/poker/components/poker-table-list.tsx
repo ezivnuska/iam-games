@@ -234,8 +234,11 @@ export default function PokerTableList({
 
     return (
         <div className={`relative flex flex-1 min-h-0 bg-gray-900 ${isLandscape ? 'flex-row' : 'flex-col'}`}>
-            {/* Game area — 60% */}
-            <div className={`relative flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
+            {/* Game area — 20% pre-game, 50% in-game */}
+            <div
+                className={`relative flex flex-col min-h-0 min-w-0 transition-[flex-basis] duration-300 ease-in-out ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}
+                style={{ flexGrow: 1, flexShrink: 1, flexBasis: locked ? '50%' : '20%' }}
+            >
                 <NotificationBar />
                 <div className='flex flex-1 min-h-0 flex-col items-center justify-center gap-4 bg-green-900 px-4 py-4'>
                     <Pot />
@@ -247,8 +250,11 @@ export default function PokerTableList({
                 </div>
             </div>
 
-            {/* Player list — 40% */}
-            <div className='flex flex-col flex-[2] min-h-0 overflow-y-auto px-2 py-2 gap-1'>
+            {/* Player list — 80% pre-game, 50% in-game */}
+            <div
+                className='flex flex-col min-h-0 overflow-y-auto px-2 py-2 gap-1 transition-[flex-basis] duration-300 ease-in-out'
+                style={{ flexGrow: 1, flexShrink: 1, flexBasis: locked ? '50%' : '80%' }}
+            >
                 {renderSlots()}
             </div>
 

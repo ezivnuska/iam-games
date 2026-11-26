@@ -123,35 +123,44 @@ export default function PokerTable() {
 
   useSetLeaveHandler(userGameInfo.isUserInGame ? handleLeave : null);
 
-  // On return: if a pending leave flag exists for this game, pre-select fold (still active)
-  // or auto-leave (game has since ended/reset). Falls back to winner check for no-Leave navigations.
+  // Reactive: handle pending-leave flag on every state change so leaveGame() fires
+  // as soon as the game unlocks after the player pressed Leave mid-game.
   useEffect(() => {
     if (isLoading || !guestRestorationComplete || !gameId) return;
 
     let pendingGameId: string | null = null;
     try { pendingGameId = localStorage.getItem('poker_pending_leave'); } catch {}
+    if (pendingGameId !== gameId) return;
 
-    if (pendingGameId === gameId && userGameInfo.isUserInGame) {
-      if (locked) {
-        // Game still running (or winner just announced but server not yet unlocked) — keep fold preset
-        setSelectedAction('fold');
-      } else {
-        // Game unlocked — safe to leave
-        try { localStorage.removeItem('poker_pending_leave'); } catch {}
-        leaveGame();
-      }
-      return;
-    }
-    if (pendingGameId === gameId && !userGameInfo.isUserInGame) {
+    if (!userGameInfo.isUserInGame) {
       try { localStorage.removeItem('poker_pending_leave'); } catch {}
       return;
     }
 
-    // Fallback: auto-leave if game ended+unlocked and player is still listed
+    if (locked) {
+      setSelectedAction('fold');
+    } else {
+      try { localStorage.removeItem('poker_pending_leave'); } catch {}
+      leaveGame();
+    }
+  }, [isLoading, guestRestorationComplete, gameId, userGameInfo.isUserInGame, locked, setSelectedAction, leaveGame]);
+
+  // One-shot on mount: auto-leave if the player returns to a game that already ended
+  // (navigated away without pressing Leave). Gate prevents firing during ongoing sessions.
+  const returnCheckDoneRef = useRef(false);
+  useEffect(() => {
+    if (isLoading || !guestRestorationComplete || !gameId) return;
+    if (returnCheckDoneRef.current) return;
+    returnCheckDoneRef.current = true;
+
+    let pendingGameId: string | null = null;
+    try { pendingGameId = localStorage.getItem('poker_pending_leave'); } catch {}
+    if (pendingGameId === gameId) return; // already handled by the reactive effect above
+
     if (winner && !locked && userGameInfo.isUserInGame) {
       leaveGame();
     }
-  }, [isLoading, guestRestorationComplete, gameId, userGameInfo.isUserInGame, locked, winner, setSelectedAction, leaveGame]);
+  }, [isLoading, guestRestorationComplete, gameId, userGameInfo.isUserInGame, locked, winner, leaveGame]);
 
   useEffect(() => {
     if (currentPlayerIndex !== prevPlayerIndexRef.current) {
