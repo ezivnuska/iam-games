@@ -6,6 +6,7 @@ import { usePlayers, useGameState, useViewers, usePokerActions } from '@/app/gam
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
 import { useSocket } from '@/app/lib/providers/socket-provider';
 import { useNotifications } from '@/app/games/poker/lib/providers/notification-provider';
+import { usePlayerNotifications } from '@/app/games/poker/lib/providers/player-notification-provider';
 import CommunalCards from './communal-cards';
 import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
@@ -18,9 +19,38 @@ import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
 
 const MAX_SLOTS = 5;
 
+const ACTION_LABELS: Partial<Record<string, string>> = {
+    player_bet: 'Bet',
+    player_raise: 'Raised',
+    player_call: 'Called',
+    player_check: 'Checked',
+    player_fold: 'Folded',
+    player_all_in: 'All-In',
+};
+
 function NotificationBar() {
     const { currentNotification } = useNotifications();
+    const { showPlayerNotification, clearAllPlayerNotifications } = usePlayerNotifications();
     const [progress, setProgress] = useState(100);
+
+    // Bridge: sync action notifications to per-player state; clear on stage advance
+    useEffect(() => {
+        if (!currentNotification) return;
+        const { type, metadata } = currentNotification;
+        if (type === 'action' && metadata?.playerId) {
+            const label = ACTION_LABELS[metadata.notificationType];
+            if (label) {
+                showPlayerNotification({
+                    playerId: metadata.playerId,
+                    message: label,
+                    timestamp: Date.now(),
+                });
+            }
+        }
+        if (metadata?.notificationType === 'stage_advanced') {
+            clearAllPlayerNotifications();
+        }
+    }, [currentNotification?.id]);
 
     useEffect(() => {
         if (!currentNotification) { setProgress(0); return; }
@@ -34,12 +64,11 @@ function NotificationBar() {
         return () => clearInterval(iv);
     }, [currentNotification]);
 
-    if (!currentNotification) return null;
+    if (!currentNotification || currentNotification.type === 'action') return null;
 
     const isWinner = currentNotification.metadata?.notificationType === 'winner_determined'
                   || currentNotification.metadata?.notificationType === 'game_tied';
-    const showProgress = currentNotification.type !== 'action'
-                      && currentNotification.type !== 'deal'
+    const showProgress = currentNotification.type !== 'deal'
                       && !isWinner
                       && progress > 0;
 

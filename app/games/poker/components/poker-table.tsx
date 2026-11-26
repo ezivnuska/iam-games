@@ -2,10 +2,11 @@
 
 'use client';
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageContent } from '@iam/ui';
-import { useSetTitle, useSetScreenLayout } from '@/app/lib/providers/title-provider';
-import { usePlayers, useGameState, usePokerActions } from '@/app/games/poker/lib/providers/poker-provider';
+import { useSetTitle, useSetScreenLayout, useSetLeaveHandler } from '@/app/lib/providers/title-provider';
+import { usePlayers, useGameState, usePokerActions, useViewers } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
 import { useSocket } from '@/app/lib/providers/socket-provider';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
@@ -19,8 +20,11 @@ export default function PokerTable() {
   useSetScreenLayout('game');
   const { players } = usePlayers();
   const { stage, locked, currentPlayerIndex, winner, isLoading, canPlayerAct } = useGameState();
+  const { gameId } = useViewers();
+  const { setTurnTimerAction } = usePokerActions();
   const { user, status, setUser } = useUser();
   const { socket } = useSocket();
+  const router = useRouter();
   // Restore guest user from localStorage on page load (for reconnection after refresh)
   const [guestRestorationComplete, setGuestRestorationComplete] = useState(false);
 
@@ -100,6 +104,15 @@ export default function PokerTable() {
       isUserTurn: currentUserPlayerIndex === currentPlayerIndex && !currentPlayer?.isAI,
     };
   }, [players, user?.id, currentPlayerIndex]);
+
+  const handleLeave = useCallback(() => {
+    if (userGameInfo.isUserInGame && gameId) {
+      setTurnTimerAction('fold');
+    }
+    router.push('/');
+  }, [userGameInfo.isUserInGame, gameId, setTurnTimerAction, router]);
+
+  useSetLeaveHandler(userGameInfo.isUserInGame ? handleLeave : null);
 
   useEffect(() => {
     if (currentPlayerIndex !== prevPlayerIndexRef.current) {

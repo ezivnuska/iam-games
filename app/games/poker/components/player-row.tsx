@@ -6,6 +6,7 @@ import Hand from './player-hand';
 import PlayerConnectionStatus from './player-connection-status';
 import { useGameState } from '@/app/games/poker/lib/providers/poker-provider';
 import { useActionTimerPercentage } from '@/app/games/poker/lib/hooks/use-action-timer-percentage';
+import { usePlayerNotifications } from '@/app/games/poker/lib/providers/player-notification-provider';
 import type { Player } from '@/app/games/poker/lib/definitions/poker';
 
 interface PlayerRowProps {
@@ -30,12 +31,15 @@ export default function PlayerRow({
     actionTriggered,
 }: PlayerRowProps) {
     const { winner, actionTimer, locked } = useGameState();
+    const { getPlayerNotification } = usePlayerNotifications();
     const isCurrentPlayer = index === currentPlayerIndex;
     const isWinner = player.id === winner?.winnerId;
 
     const timerForCurrentPlayer = isCurrentPlayer ? actionTimer : undefined;
     const timePercentage = useActionTimerPercentage(timerForCurrentPlayer, player.id);
     const showTimer = timePercentage > 0;
+
+    const actionLabel = getPlayerNotification(player.id)?.message;
 
     return (
         <div className={clsx(
@@ -80,6 +84,9 @@ export default function PlayerRow({
                         <span className='text-white px-1 py-0.5 bg-red-500 rounded text-[10px] font-bold'>ALL-IN</span>
                     ) : (
                         <span className='text-xs text-gray-400'>{player.chipCount}</span>
+                    )}
+                    {actionLabel && !player.isAllIn && (
+                        <span className='text-xs text-white/50'>· {actionLabel}</span>
                     )}
                 </div>
             </div>

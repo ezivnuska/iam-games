@@ -11,11 +11,20 @@ interface ClientShellProps {
 
 function ShellInner({ children, loggedIn }: ClientShellProps) {
     const { footer } = useFooter();
-    const { title, screenLayout } = useTitle();
+    const { title, screenLayout, leaveHandler } = useTitle();
     const isLandscape = useHorizontalLayout();
     useAppHeight();
 
     const showGameNav = loggedIn || !!title;
+
+    const leaveButton = leaveHandler ? (
+        <button
+            onClick={leaveHandler}
+            className='text-sm text-white/70 hover:text-white transition-colors px-2 py-1'
+        >
+            Leave
+        </button>
+    ) : undefined;
 
     return (
         <Screen
@@ -29,6 +38,7 @@ function ShellInner({ children, loggedIn }: ClientShellProps) {
             footer={footer}
             layout={screenLayout}
             centerAside
+            headerEnd={leaveButton}
         >
             {children}
         </Screen>
