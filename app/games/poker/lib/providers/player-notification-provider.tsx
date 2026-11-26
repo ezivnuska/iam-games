@@ -2,7 +2,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode, useRef, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useRef, useEffect } from 'react';
 import type { PokerSoundType } from '../hooks/use-poker-sounds';
 
 export interface PlayerNotification {
@@ -118,13 +118,13 @@ export function PlayerNotificationProvider({ children }: { children: ReactNode }
     };
   }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     activeNotifications,
     showPlayerNotification,
     clearPlayerNotification,
     clearAllPlayerNotifications,
     getPlayerNotification,
-  };
+  }), [activeNotifications, showPlayerNotification, clearPlayerNotification, clearAllPlayerNotifications, getPlayerNotification]);
 
   return (
     <PlayerNotificationContext.Provider value={value}>

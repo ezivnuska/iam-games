@@ -91,6 +91,7 @@ export function awardPotToWinners(game: PokerGameDoc, winnerInfo: WinnerInfo): v
 
   // If no side pots, fall back to legacy pot distribution
   if (sidePots.length === 0) {
+    console.warn('[AwardPot] calculateSidePots returned empty — falling back to legacy distribution');
     const potTotal = game.pot.reduce((sum: number, bet: Bet) => sum + bet.chipCount, 0);
 
     if (winnerInfo.isTie && winnerInfo.tiedPlayers) {

@@ -49,7 +49,7 @@ export interface ViewersContextValue {
 }
 
 export interface ActionsContextValue {
-  joinGame: (gameId: string) => Promise<void>;
+  joinGame: (gameId: string, guestUsername?: string) => Promise<void>;
   placeBet: (chipCount: number) => Promise<void>;
   fold: () => Promise<void>;
   leaveGame: () => Promise<void>;

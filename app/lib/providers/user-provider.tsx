@@ -2,7 +2,7 @@
 
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import type { AppUser, User } from "@/app/lib/definitions";
 import { UserRole } from "@/app/lib/definitions/user";
 
@@ -99,7 +99,7 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
             });
     }, [initialUser?.id]);
 
-    async function fetchUserById(id: string): Promise<User | null> {
+    const fetchUserById = useCallback(async (id: string): Promise<User | null> => {
         if (userCache.has(id)) return userCache.get(id)!;
 
         try {
@@ -112,9 +112,9 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
             console.error("fetchUserById error:", err);
             return null;
         }
-    }
+    }, [userCache]);
 
-    async function fetchUserByUsername(username: string): Promise<User | null> {
+    const fetchUserByUsername = useCallback(async (username: string): Promise<User | null> => {
         if (userCache.has(username)) return userCache.get(username)!;
 
         try {
@@ -127,18 +127,16 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
             console.error("fetchUserByUsername error:", err);
             return null;
         }
-    }
+    }, [userCache]);
 
-    function signIn() {
+    const signIn = useCallback(() => {
         const mainApp = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me'
         const returnUrl = typeof window !== 'undefined' ? window.location.pathname : '/'
-        // After login, iam-next-mongo redirects to /api/auth/games-token which
-        // signs a short-lived GAMES_TOKEN_SECRET JWT and hands off to this app.
         const callbackUrl = encodeURIComponent(`/api/auth/games-token?redirect=${encodeURIComponent(returnUrl)}`)
         window.location.href = `${mainApp}/signin?callbackUrl=${callbackUrl}`
-    }
+    }, []);
 
-    async function signOut() {
+    const signOut = useCallback(async () => {
         setStatus("signing-out");
         try {
             await fetch("/api/auth/signout", { method: "POST" });
@@ -146,20 +144,22 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
             // ignore
         }
         window.location.href = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://iameric.me';
-    }
+    }, []);
+
+    const value = useMemo(() => ({
+        user,
+        token,
+        status,
+        setUser,
+        signIn,
+        signOut,
+        fetchUserById,
+        fetchUserByUsername,
+    }), [user, token, status, setUser, signIn, signOut, fetchUserById, fetchUserByUsername]);
 
     return (
         <UserContext.Provider
-            value={{
-                user,
-                token,
-                status,
-                setUser,
-                signIn,
-                signOut,
-                fetchUserById,
-                fetchUserByUsername,
-            }}
+            value={value}
         >
             {["authenticated", "unauthenticated", "signing-out"].includes(status) ? children : null}
         </UserContext.Provider>

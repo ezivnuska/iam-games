@@ -2,7 +2,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode, useRef } from 'react';
 import type { PokerNotificationPayload } from '@/app/lib/socket/events';
 
 // Notification types
@@ -144,13 +144,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     currentNotification,
     showNotification,
     clearNotification,
     resetNotifications,
     isActionNotificationActive,
-  };
+  }), [currentNotification, showNotification, clearNotification, resetNotifications, isActionNotificationActive]);
 
   return (
     <NotificationContext.Provider value={value}>

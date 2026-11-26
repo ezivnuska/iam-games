@@ -113,6 +113,11 @@ async function executeScheduledAction(gameId: string) {
     return;
   }
 
+  // Don't execute if game has already ended
+  if (game.stage >= 5) {
+    return;
+  }
+
   const { actionType, targetPlayerId, currentActionIndex } = game.actionTimer;
 
   // Check if timer has actually expired (prevents double execution)

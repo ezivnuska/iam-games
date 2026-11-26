@@ -453,16 +453,23 @@ function adjustCurrentPlayerIndex(
     // Find next active player
     let nextIndex = leavingPlayerIndex % game.players.length;
     let attempts = 0;
+    let found = false;
 
     while (attempts < game.players.length) {
       const candidate = game.players[nextIndex];
       if (!candidate.isAllIn && !candidate.folded) {
         game.currentPlayerIndex = nextIndex;
         game.markModified('currentPlayerIndex');
+        found = true;
         break;
       }
       nextIndex = (nextIndex + 1) % game.players.length;
       attempts++;
+    }
+
+    if (!found) {
+      // All remaining players are all-in or folded — early completion will end the round
+      console.warn('[PlayerManager] No active player found after removal; early completion should trigger');
     }
   } else if (leavingPlayerIndex < game.currentPlayerIndex) {
     // If leaving player was before current player, adjust index
