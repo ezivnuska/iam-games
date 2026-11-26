@@ -11,6 +11,8 @@ interface TitleContextValue {
     setScreenLayout: (layout: ScreenLayout) => void;
     leaveHandler: (() => void) | null;
     setLeaveHandler: (fn: (() => void) | null) => void;
+    joinHandler: (() => void) | null;
+    setJoinHandler: (fn: (() => void) | null) => void;
 }
 
 const TitleContext = createContext<TitleContextValue>({
@@ -20,14 +22,17 @@ const TitleContext = createContext<TitleContextValue>({
     setScreenLayout: () => {},
     leaveHandler: null,
     setLeaveHandler: () => {},
+    joinHandler: null,
+    setJoinHandler: () => {},
 });
 
 export function TitleProvider({ children }: { children: React.ReactNode }) {
     const [title, setTitle] = useState<string | null>(null);
     const [screenLayout, setScreenLayout] = useState<ScreenLayout>('default');
     const [leaveHandler, setLeaveHandler] = useState<(() => void) | null>(null);
+    const [joinHandler, setJoinHandler] = useState<(() => void) | null>(null);
     return (
-        <TitleContext.Provider value={{ title, setTitle, screenLayout, setScreenLayout, leaveHandler, setLeaveHandler }}>
+        <TitleContext.Provider value={{ title, setTitle, screenLayout, setScreenLayout, leaveHandler, setLeaveHandler, joinHandler, setJoinHandler }}>
             {children}
         </TitleContext.Provider>
     );
@@ -63,5 +68,13 @@ export function useSetLeaveHandler(handler: (() => void) | null) {
     useEffect(() => {
         setLeaveHandler(() => handler);
         return () => setLeaveHandler(null);
+    }, [handler]);
+}
+
+export function useSetJoinHandler(handler: (() => void) | null) {
+    const { setJoinHandler } = useTitle();
+    useEffect(() => {
+        setJoinHandler(() => handler);
+        return () => setJoinHandler(null);
     }, [handler]);
 }

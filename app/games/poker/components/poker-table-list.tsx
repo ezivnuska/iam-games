@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { usePlayers, useGameState, useViewers, usePokerActions } from '@/app/games/poker/lib/providers/poker-provider';
-import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
-import { useSocket } from '@/app/lib/providers/socket-provider';
+import { useUser } from '@/app/lib/providers/user-provider';
 import { useNotifications } from '@/app/games/poker/lib/providers/notification-provider';
 import { usePlayerNotifications } from '@/app/games/poker/lib/providers/player-notification-provider';
 import CommunalCards from './communal-cards';
@@ -12,7 +10,6 @@ import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
 import PokerNotificationDisplay from './poker-notification-display';
 import PlayerRow from './player-row';
-import GuestUsernameModal from './guest-username-modal';
 import { StaleGameModal } from './stale-game-modal';
 import { Button } from '@iam/ui';
 import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
@@ -106,74 +103,6 @@ interface PokerTableListProps {
     handleStaleReset: () => void;
 }
 
-function EmptySlotRow({ gameId, locked, onJoinGame, isClickable }: {
-    gameId: string | null;
-    locked: boolean;
-    onJoinGame: (gameId: string, guestUsername?: string) => void;
-    isClickable: boolean;
-}) {
-    const { user, status, setUser } = useUser();
-    const { isConnected } = useSocket();
-    const [showGuestModal, setShowGuestModal] = useState(false);
-
-    const isAuthenticated = status === 'authenticated' || status === 'signing-out';
-    const canClick = isClickable && isConnected;
-
-    const handleClick = () => {
-        if (!canClick || !gameId) return;
-        if (isAuthenticated) {
-            onJoinGame(gameId);
-        } else {
-            setShowGuestModal(true);
-        }
-    };
-
-    const handleGuestSubmit = async (username: string) => {
-        if (!gameId) return;
-        const guestUser = createGuestUser();
-        guestUser.username = username;
-        try {
-            localStorage.setItem('poker_guest_id', guestUser.id);
-            localStorage.setItem('poker_guest_username', username);
-            localStorage.setItem('poker_guest_created_at', new Date().toISOString());
-        } catch (e) {
-            console.warn('[EmptySlotRow] Failed to store guest credentials:', e);
-        }
-        setUser(guestUser);
-        await new Promise(resolve => setTimeout(resolve, 100));
-        onJoinGame(gameId, username);
-        setShowGuestModal(false);
-    };
-
-    return (
-        <>
-            <button
-                onClick={handleClick}
-                disabled={!canClick}
-                className={`flex h-12 w-full items-center gap-3 px-3 rounded-lg border border-dashed border-gray-600 text-gray-400 text-sm transition-colors ${
-                    canClick ? 'hover:border-gray-400 hover:text-gray-200 cursor-pointer' : 'cursor-default opacity-40'
-                }`}
-            >
-                {isClickable && (
-                    <>
-                        <span className='text-lg font-bold'>+</span>
-                        <span>{isConnected ? 'Join game' : 'Connecting...'}</span>
-                    </>
-                )}
-            </button>
-            {showGuestModal && typeof document !== 'undefined' && createPortal(
-                <GuestUsernameModal
-                    isOpen={showGuestModal}
-                    onClose={() => setShowGuestModal(false)}
-                    onSubmit={handleGuestSubmit}
-                    isGameLocked={locked}
-                />,
-                document.body
-            )}
-        </>
-    );
-}
-
 export default function PokerTableList({
     showPlayerControls,
     handleActionTaken,
@@ -184,35 +113,26 @@ export default function PokerTableList({
     const { players } = usePlayers();
     const { locked, currentPlayerIndex, dealerButtonPosition } = useGameState();
     const { gameId } = useViewers();
-    const { joinGame, resetSingleton } = usePokerActions();
+    const { resetSingleton } = usePokerActions();
     const { user } = useUser();
 
     const orientation = useScreenOrientation();
     const isLandscape = orientation === 'landscape';
 
-    const isUserInGame = players.some(p => p.id === user?.id);
     const { smallBlindPos, bigBlindPos } = getBlindPositions(dealerButtonPosition, players.length);
 
-    let firstEmptySlotFound = false;
     const slots = Array.from({ length: MAX_SLOTS }, (_, i) => {
         const player = players[i];
-        if (!player) {
-            const isFirstEmpty = !firstEmptySlotFound;
-            firstEmptySlotFound = true;
-            return { type: 'empty' as const, slotIndex: i, isFirstEmpty };
-        }
+        if (!player) return { type: 'empty' as const, slotIndex: i };
         return { type: 'player' as const, slotIndex: i, player };
     });
 
     const renderSlots = () => slots.map(slot => {
         if (slot.type === 'empty') {
             return (
-                <EmptySlotRow
+                <div
                     key={`empty-${slot.slotIndex}`}
-                    gameId={gameId}
-                    locked={locked}
-                    onJoinGame={joinGame}
-                    isClickable={slot.isFirstEmpty && !isUserInGame}
+                    className='flex h-12 w-full rounded-lg border border-dashed border-gray-600 opacity-30'
                 />
             );
         }

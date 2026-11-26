@@ -3,12 +3,14 @@
 'use client';
 
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { PageContent } from '@iam/ui';
-import { useSetTitle, useSetScreenLayout, useSetLeaveHandler } from '@/app/lib/providers/title-provider';
+import { useSetTitle, useSetScreenLayout, useSetLeaveHandler, useSetJoinHandler } from '@/app/lib/providers/title-provider';
 import { usePlayers, useGameState, usePokerActions, useViewers } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
 import { useSocket } from '@/app/lib/providers/socket-provider';
+import GuestUsernameModal from './guest-username-modal';
 import { SOCKET_EVENTS } from '@/app/lib/socket/events';
 import type { PokerNotificationPayload } from '@/app/lib/socket/events';
 import type { User } from '@/app/lib/definitions';
@@ -21,9 +23,9 @@ export default function PokerTable() {
   const { players } = usePlayers();
   const { stage, locked, currentPlayerIndex, winner, isLoading, canPlayerAct, setSelectedAction } = useGameState();
   const { gameId } = useViewers();
-  const { setTurnTimerAction, leaveGame } = usePokerActions();
+  const { setTurnTimerAction, leaveGame, joinGame } = usePokerActions();
   const { user, status, setUser } = useUser();
-  const { socket } = useSocket();
+  const { socket, isConnected } = useSocket();
   const router = useRouter();
   // Restore guest user from localStorage on page load (for reconnection after refresh)
   const [guestRestorationComplete, setGuestRestorationComplete] = useState(false);
@@ -122,6 +124,40 @@ export default function PokerTable() {
   }, [userGameInfo.isUserInGame, gameId, locked, winner, setTurnTimerAction, leaveGame, router]);
 
   useSetLeaveHandler(userGameInfo.isUserInGame ? handleLeave : null);
+
+  // Join game (lifted from EmptySlotRow — guest modal lives here now)
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const hasOpenSlot = players.length < 5;
+  const canJoin = !userGameInfo.isUserInGame && !!gameId && !locked && hasOpenSlot && isConnected;
+
+  const handleJoinClick = useCallback(() => {
+    if (!gameId) return;
+    const isAuthenticated = status === 'authenticated' || status === 'signing-out';
+    if (isAuthenticated) {
+      joinGame(gameId);
+    } else {
+      setShowGuestModal(true);
+    }
+  }, [gameId, status, joinGame]);
+
+  const handleGuestSubmit = useCallback(async (username: string) => {
+    if (!gameId) return;
+    const guestUser = createGuestUser();
+    guestUser.username = username;
+    try {
+      localStorage.setItem('poker_guest_id', guestUser.id);
+      localStorage.setItem('poker_guest_username', username);
+      localStorage.setItem('poker_guest_created_at', new Date().toISOString());
+    } catch (e) {
+      console.warn('[PokerTable] Failed to store guest credentials:', e);
+    }
+    setUser(guestUser);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    joinGame(gameId, username);
+    setShowGuestModal(false);
+  }, [gameId, setUser, joinGame]);
+
+  useSetJoinHandler(canJoin ? handleJoinClick : null);
 
   // Reactive: handle pending-leave flag on every state change so leaveGame() fires
   // as soon as the game unlocks after the player pressed Leave mid-game.
@@ -225,6 +261,15 @@ export default function PokerTable() {
         showStaleModal={showStaleModal}
         handleStaleReset={handleStaleReset}
       />
+      {showGuestModal && typeof document !== 'undefined' && createPortal(
+        <GuestUsernameModal
+          isOpen={showGuestModal}
+          onClose={() => setShowGuestModal(false)}
+          onSubmit={handleGuestSubmit}
+          isGameLocked={locked}
+        />,
+        document.body
+      )}
     </PageContent>
   );
 }
