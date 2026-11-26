@@ -1,6 +1,6 @@
 'use client';
 
-import { Screen, FooterProvider, useFooter, useAppHeight } from '@iam/ui';
+import { Screen, FooterProvider, useFooter, useAppHeight, useHorizontalLayout } from '@iam/ui';
 import SignInButton from '@/app/ui/header/sign-in-button';
 import GameNav from '@/app/ui/header/game-nav';
 import { TitleProvider, useTitle } from '@/app/lib/providers/title-provider';
@@ -12,6 +12,7 @@ interface ClientShellProps {
 function ShellInner({ children, loggedIn }: ClientShellProps) {
     const { footer } = useFooter();
     const { title, screenLayout } = useTitle();
+    const isLandscape = useHorizontalLayout();
     useAppHeight();
 
     const showGameNav = loggedIn || !!title;
@@ -19,8 +20,12 @@ function ShellInner({ children, loggedIn }: ClientShellProps) {
     return (
         <Screen
             brandHref='https://iameric.me'
-            userControls={showGameNav ? <GameNav title={title} /> : undefined}
-            nav={loggedIn ? undefined : <SignInButton />}
+            nav={
+                <div className={isLandscape ? 'flex flex-col items-center gap-3' : 'flex flex-row items-center gap-3'}>
+                    {!loggedIn && <SignInButton />}
+                    {showGameNav && <GameNav title={title} />}
+                </div>
+            }
             footer={footer}
             layout={screenLayout}
             centerAside

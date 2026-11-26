@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { usePlayers, useGameState, useViewers, usePokerActions } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser, createGuestUser } from '@/app/lib/providers/user-provider';
 import { useSocket } from '@/app/lib/providers/socket-provider';
+import { useNotifications } from '@/app/games/poker/lib/providers/notification-provider';
 import CommunalCards from './communal-cards';
 import Pot from './pot';
 import PokerDashboard from './poker-dashboard';
+import PokerNotificationDisplay from './poker-notification-display';
 import PlayerRow from './player-row';
 import GuestUsernameModal from './guest-username-modal';
 import { StaleGameModal } from './stale-game-modal';
@@ -15,6 +17,46 @@ import { Button } from '@iam/ui';
 import { useScreenOrientation } from '@/app/lib/hooks/use-screen-orientation';
 
 const MAX_SLOTS = 5;
+
+function NotificationBar() {
+    const { currentNotification } = useNotifications();
+    const [progress, setProgress] = useState(100);
+
+    useEffect(() => {
+        if (!currentNotification) { setProgress(0); return; }
+        const start = Date.now();
+        const { duration } = currentNotification;
+        const iv = setInterval(() => {
+            const remaining = Math.max(0, duration - (Date.now() - start));
+            setProgress((remaining / duration) * 100);
+            if (remaining <= 0) clearInterval(iv);
+        }, 16);
+        return () => clearInterval(iv);
+    }, [currentNotification]);
+
+    if (!currentNotification) return null;
+
+    const isWinner = currentNotification.metadata?.notificationType === 'winner_determined'
+                  || currentNotification.metadata?.notificationType === 'game_tied';
+    const showProgress = currentNotification.type !== 'action'
+                      && currentNotification.type !== 'deal'
+                      && !isWinner
+                      && progress > 0;
+
+    return (
+        <div className='px-2 pt-2'>
+            <div className='relative w-full h-10 overflow-hidden rounded-full bg-green-900 border flex items-center justify-center'>
+                {showProgress && (
+                    <div
+                        className='absolute left-0 top-0 bottom-0 bg-green-500 transition-all duration-100 ease-linear z-5'
+                        style={{ width: `${progress}%`, opacity: 0.8 }}
+                    />
+                )}
+                <PokerNotificationDisplay notification={currentNotification} />
+            </div>
+        </div>
+    );
+}
 
 function getBlindPositions(dealerButtonPosition: number, playerCount: number) {
     if (playerCount < 2) return { smallBlindPos: -1, bigBlindPos: -1 };
@@ -178,6 +220,7 @@ export default function PokerTableList({
         <div className={`relative flex flex-1 min-h-0 bg-gray-900 ${isLandscape ? 'flex-row' : 'flex-col'}`}>
             {/* Game area — 60% */}
             <div className={`flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
+                <NotificationBar />
                 {tablePanel}
                 {dashboard}
             </div>
