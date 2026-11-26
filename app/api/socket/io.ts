@@ -31,11 +31,14 @@ export async function emitViaAPI(event: string, data: unknown, room?: string, ex
         return
     }
 
+    const internalSecret = process.env.INTERNAL_SECRET;
+    if (!internalSecret) throw new Error('[emitViaAPI] INTERNAL_SECRET is not configured');
+
     const response = await fetch(`http://localhost:${process.env.PORT ?? '3002'}/api/socket/emit`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-internal-secret': process.env.INTERNAL_SECRET ?? '',
+            'x-internal-secret': internalSecret,
         },
         body: JSON.stringify({ event, data, room, excludeUserId }),
     })

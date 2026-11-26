@@ -51,7 +51,7 @@ export const GET = withRateLimit(RATE_LIMITS.READ, async () => {
     } catch (error) {
         console.error('Error fetching tile scores:', error)
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Failed to fetch scores' },
+            { error: 'Failed to fetch scores' },
             { status: 500 }
         )
     }
@@ -90,7 +90,7 @@ export const POST = withRateLimit(RATE_LIMITS.GAME_ACTION, withAuth(async (reque
     } catch (error) {
         console.error('Error saving tile score:', error)
         return Response.json(
-            { error: error instanceof Error ? error.message : 'Failed to save score' },
+            { error: 'Failed to save score' },
             { status: 500 }
         )
     }
@@ -112,7 +112,7 @@ export const DELETE = withRateLimit(RATE_LIMITS.DESTRUCTIVE, withAuth(async (_re
     } catch (error) {
         console.error('Error clearing tile scores:', error)
         return Response.json(
-            { error: error instanceof Error ? error.message : 'Failed to clear scores' },
+            { error: 'Failed to clear scores' },
             { status: 500 }
         )
     }

@@ -15,8 +15,6 @@ export async function GET() {
     return NextResponse.json({ game: serialized });
   } catch (error) {
     console.error('Error fetching singleton game:', error);
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : 'Failed to fetch game'
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch game' }, { status: 500 });
   }
 }

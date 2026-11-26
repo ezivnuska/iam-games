@@ -31,6 +31,10 @@ async function validateUserId(userId: string): Promise<{ valid: boolean; error?:
     }
 }
 
+function isValidObjectId(id: string): boolean {
+    return /^[0-9a-fA-F]{24}$/.test(id);
+}
+
 function rateLimited(resetTime: number, message: string): NextResponse {
     const retryAfter = Math.ceil((resetTime - Date.now()) / 1000)
     return NextResponse.json(
@@ -46,6 +50,7 @@ function rateLimited(resetTime: number, message: string): NextResponse {
 export async function handleJoinGame(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId, username } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     let validatedUserId: string
     let validatedUsername: string
@@ -89,6 +94,7 @@ export async function handleJoinGame(body: SignalBody): Promise<NextResponse> {
 export async function handleLeaveGame(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     const validation = await validateUserId(userId)
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 403 })
@@ -108,6 +114,7 @@ export async function handleLeaveGame(body: SignalBody): Promise<NextResponse> {
 export async function handleReadyForNextTurn(body: SignalBody): Promise<NextResponse> {
     const { gameId } = body
     if (!gameId) return NextResponse.json({ error: 'Missing gameId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
     const { handleReadyForNextTurn } = await import('@/app/games/poker/lib/server/turn/turn-handler')
     await handleReadyForNextTurn(gameId)
     return NextResponse.json({ success: true })
@@ -116,6 +123,7 @@ export async function handleReadyForNextTurn(body: SignalBody): Promise<NextResp
 export async function handleBet(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId, chipCount } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     const validation = await validateUserId(userId)
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 403 })
@@ -129,14 +137,15 @@ export async function handleBet(body: SignalBody): Promise<NextResponse> {
         const { PokerSocketEmitter } = await import('@/app/lib/utils/socket-helper')
         await PokerSocketEmitter.emitGameActionResults(result.events)
         return NextResponse.json({ success: true })
-    } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to place bet' }, { status: 500 })
+    } catch {
+        return NextResponse.json({ error: 'Failed to place bet' }, { status: 500 })
     }
 }
 
 export async function handleFold(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     const validation = await validateUserId(userId)
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 403 })
@@ -148,14 +157,15 @@ export async function handleFold(body: SignalBody): Promise<NextResponse> {
         const { fold } = await import('@/app/games/poker/lib/server/actions/poker-game-controller')
         await fold(gameId, userId)
         return NextResponse.json({ success: true })
-    } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to fold' }, { status: 500 })
+    } catch {
+        return NextResponse.json({ error: 'Failed to fold' }, { status: 500 })
     }
 }
 
 export async function handleSetTimerAction(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId, timerAction, betAmount } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     const validation = await validateUserId(userId)
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 403 })
@@ -172,14 +182,15 @@ export async function handleSetTimerAction(body: SignalBody): Promise<NextRespon
         const validAction = timerAction as 'fold' | 'call' | 'check' | 'bet' | 'raise'
         await setTurnTimerAction(gameId, userId, validAction, betAmount)
         return NextResponse.json({ success: true })
-    } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to set timer action' }, { status: 500 })
+    } catch {
+        return NextResponse.json({ error: 'Failed to set timer action' }, { status: 500 })
     }
 }
 
 export async function handleSetPresence(body: SignalBody): Promise<NextResponse> {
     const { gameId, userId, isAway } = body
     if (!gameId || !userId) return NextResponse.json({ error: 'Missing gameId or userId' }, { status: 400 })
+    if (!isValidObjectId(gameId)) return NextResponse.json({ error: 'Invalid game ID' }, { status: 400 })
 
     const validation = await validateUserId(userId)
     if (!validation.valid) return NextResponse.json({ error: validation.error }, { status: 403 })
@@ -188,8 +199,8 @@ export async function handleSetPresence(body: SignalBody): Promise<NextResponse>
         const { setPlayerPresence } = await import('@/app/games/poker/lib/server/actions/poker-game-controller')
         await setPlayerPresence(gameId, userId, isAway ?? false)
         return NextResponse.json({ success: true })
-    } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to set presence' }, { status: 500 })
+    } catch {
+        return NextResponse.json({ error: 'Failed to set presence' }, { status: 500 })
     }
 }
 
