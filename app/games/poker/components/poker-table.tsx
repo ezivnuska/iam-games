@@ -107,13 +107,16 @@ export default function PokerTable() {
 
   const handleLeave = useCallback(() => {
     if (userGameInfo.isUserInGame && gameId) {
-      const gameInProgress = locked && !winner;
-      if (gameInProgress) {
+      if (locked && !winner) {
+        // Game actively running — set fold preset and store flag for return
         try { localStorage.setItem('poker_pending_leave', gameId); } catch {}
         setTurnTimerAction('fold');
-      } else {
+      } else if (!locked) {
+        // Pre-game lobby — remove immediately
         leaveGame();
       }
+      // If locked && winner: game just ended but server hasn't unlocked yet;
+      // navigate away and the return effect will auto-leave once the game unlocks.
     }
     router.push('/');
   }, [userGameInfo.isUserInGame, gameId, locked, winner, setTurnTimerAction, leaveGame, router]);
@@ -129,10 +132,11 @@ export default function PokerTable() {
     try { pendingGameId = localStorage.getItem('poker_pending_leave'); } catch {}
 
     if (pendingGameId === gameId && userGameInfo.isUserInGame) {
-      const gameInProgress = locked && !winner;
-      if (gameInProgress) {
+      if (locked) {
+        // Game still running (or winner just announced but server not yet unlocked) — keep fold preset
         setSelectedAction('fold');
       } else {
+        // Game unlocked — safe to leave
         try { localStorage.removeItem('poker_pending_leave'); } catch {}
         leaveGame();
       }
@@ -143,8 +147,8 @@ export default function PokerTable() {
       return;
     }
 
-    // Fallback: auto-leave if game ended and player is still listed (navigated away without Leave)
-    if (winner && userGameInfo.isUserInGame) {
+    // Fallback: auto-leave if game ended+unlocked and player is still listed
+    if (winner && !locked && userGameInfo.isUserInGame) {
       leaveGame();
     }
   }, [isLoading, guestRestorationComplete, gameId, userGameInfo.isUserInGame, locked, winner, setSelectedAction, leaveGame]);

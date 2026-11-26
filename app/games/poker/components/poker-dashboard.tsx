@@ -35,7 +35,7 @@ export default function PokerDashboard({
   const showWaitingForPlayers = !hasHumanPlayers && !showPlayerControls && !showActingPlayerPlaceholder;
 
   return (
-    <div className='relative w-full h-10 flex-row items-center justify-center rounded-full bg-green-900 overflow-hidden border'>
+    <div className='relative w-full h-10 flex-row items-center justify-center rounded-full bg-gray-900/90 overflow-hidden border border-gray-700'>
       {/* Keep GameNotification mounted for socket subscriptions */}
       <div className='hidden'><GameNotification /></div>
 

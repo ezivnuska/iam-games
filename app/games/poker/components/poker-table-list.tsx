@@ -232,26 +232,19 @@ export default function PokerTableList({
         );
     });
 
-    const tablePanel = (
-        <div className='flex flex-1 min-h-0 flex-col items-center justify-center gap-4 bg-green-900 px-4 py-4'>
-            <Pot />
-            <CommunalCards />
-        </div>
-    );
-
-    const dashboard = (
-        <div className='px-2 pb-2 pt-1 bg-gray-900 border-t border-gray-700'>
-            <PokerDashboard showPlayerControls={showPlayerControls} onActionTaken={handleActionTaken} />
-        </div>
-    );
-
     return (
         <div className={`relative flex flex-1 min-h-0 bg-gray-900 ${isLandscape ? 'flex-row' : 'flex-col'}`}>
             {/* Game area — 60% */}
             <div className={`relative flex flex-col flex-[3] min-h-0 min-w-0 ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}>
                 <NotificationBar />
-                {tablePanel}
-                {dashboard}
+                <div className='flex flex-1 min-h-0 flex-col items-center justify-center gap-4 bg-green-900 px-4 py-4'>
+                    <Pot />
+                    <CommunalCards />
+                </div>
+                {/* Player controls overlay — always mounted so GameNotification socket sub stays alive */}
+                <div className={showPlayerControls ? 'absolute bottom-3 left-4 right-4 z-20' : 'hidden'}>
+                    <PokerDashboard showPlayerControls={showPlayerControls} onActionTaken={handleActionTaken} />
+                </div>
             </div>
 
             {/* Player list — 40% */}
