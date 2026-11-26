@@ -93,13 +93,10 @@ export async function addPlayer(
     // Set/Reset lockTime flag when we have 2+ total players (used to trigger notification queue)
     // Note: AI player is always present in singleton game, so this will trigger when first human joins
     // IMPORTANT: Always reset lockTime when a new player joins to give everyone the full countdown
-    // lockTime must account for BOTH player_joined notification (2s) AND game_starting notification (10s)
+    // lockTime accounts for game_starting notification (10s countdown)
     // SKIP this when adding queued players (they shouldn't reset the existing countdown)
     if (game.players.length >= 2 && !game.locked && !options.skipLockTimeReset) {
-      const totalNotificationDuration =
-        POKER_GAME_CONFIG.PLAYER_JOINED_NOTIFICATION_DURATION_MS +
-        POKER_GAME_CONFIG.AUTO_LOCK_DELAY_MS;
-      const lockTime = new Date(Date.now() + totalNotificationDuration);
+      const lockTime = new Date(Date.now() + POKER_GAME_CONFIG.AUTO_LOCK_DELAY_MS);
       game.lockTime = lockTime;
       await PokerGame.findByIdAndUpdate(gameId, { lockTime });
     }

@@ -62,9 +62,6 @@ export function usePokerEventHandler(gameId: string | null) {
       } else if (payload.notificationType === 'winner_determined' || payload.notificationType === 'game_tied') {
         // Winner notifications use 10 second duration
         duration = POKER_GAME_CONFIG.AUTO_LOCK_DELAY_MS; // 10 seconds
-      } else if (payload.notificationType === 'player_joined') {
-        // Player joined notifications use 2 second duration
-        duration = POKER_GAME_CONFIG.PLAYER_JOINED_NOTIFICATION_DURATION_MS; // 2 seconds
       } else if (isPlayerAction || isPreGameNotification) {
         // Player action and pre-game notifications use 2 second duration
         duration = POKER_TIMERS.PLAYER_ACTION_NOTIFICATION_DURATION_MS; // 2 seconds
@@ -120,7 +117,6 @@ export function usePokerEventHandler(gameId: string | null) {
 
       // Route to appropriate notification display
       const isBlindNotification = payload.notificationType === 'blind_posted';
-      const isPlayerJoinedNotification = payload.notificationType === 'player_joined';
       const isWinnerNotification = payload.notificationType === 'winner_determined' || payload.notificationType === 'game_tied';
 
       // Play appropriate sound for player actions

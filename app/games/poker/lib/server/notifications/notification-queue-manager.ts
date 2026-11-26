@@ -16,9 +16,7 @@ import { POKER_GAME_CONFIG, POKER_TIMERS } from '../../config/poker-constants';
 import { scheduleGameLock, cancelGameLock } from '../locking/game-lock-manager';
 
 interface NotificationQueueItem {
-  type: 'player_joined' | 'game_starting' | 'cards_dealt';
-  playerName?: string;
-  playerId?: string;
+  type: 'game_starting' | 'cards_dealt';
   gameId?: string;
   stageName?: string; // For cards_dealt: 'PRE-FLOP', 'FLOP', 'TURN', 'RIVER'
 }
@@ -29,7 +27,7 @@ const processingGames = new Set<string>();
 
 // Track currently displaying notification and its cancellation
 const activeNotifications = new Map<string, {
-  type: 'player_joined' | 'game_starting' | 'cards_dealt';
+  type: 'game_starting' | 'cards_dealt';
   cancelFn?: () => void;
 }>();
 
@@ -77,13 +75,6 @@ export async function queuePlayerJoinedNotification(
       queue.splice(i, 1);
     }
   }
-
-  // Add player joined notification
-  queue.push({
-    type: 'player_joined',
-    playerName,
-    playerId,
-  });
 
   // Add NEW game_starting notification at the end
   queue.push({
@@ -239,25 +230,7 @@ async function processQueue(gameId: string): Promise<void> {
   while (queue.length > 0) {
     const item = queue.shift()!;
 
-    if (item.type === 'player_joined') {
-      // Track active notification
-      activeNotifications.set(gameId, { type: 'player_joined' });
-
-      // Emit player joined notification
-      await PokerSocketEmitter.emitNotification({
-        notificationType: 'player_joined',
-        category: 'info',
-        playerName: item.playerName!,
-        playerId: item.playerId!,
-      });
-
-      // Wait for notification to complete (2 seconds)
-      await new Promise(resolve => setTimeout(resolve, POKER_GAME_CONFIG.PLAYER_JOINED_NOTIFICATION_DURATION_MS));
-
-      // Clear active notification
-      activeNotifications.delete(gameId);
-
-    } else if (item.type === 'game_starting') {
+    if (item.type === 'game_starting') {
       // Setup cancellation
       let cancelled = false;
       let timeoutId: NodeJS.Timeout;

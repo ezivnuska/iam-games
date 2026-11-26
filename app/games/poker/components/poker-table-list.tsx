@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { usePlayers, useGameState, useViewers, usePokerActions } from '@/app/games/poker/lib/providers/poker-provider';
 import { useUser } from '@/app/lib/providers/user-provider';
 import { useNotifications } from '@/app/games/poker/lib/providers/notification-provider';
@@ -28,7 +28,6 @@ const ACTION_LABELS: Partial<Record<string, string>> = {
 function NotificationBar() {
     const { currentNotification } = useNotifications();
     const { showPlayerNotification, clearAllPlayerNotifications } = usePlayerNotifications();
-    const [progress, setProgress] = useState(100);
 
     // Bridge: sync action notifications to per-player state; clear on stage advance
     useEffect(() => {
@@ -49,35 +48,11 @@ function NotificationBar() {
         }
     }, [currentNotification?.id]);
 
-    useEffect(() => {
-        if (!currentNotification) { setProgress(0); return; }
-        const start = Date.now();
-        const { duration } = currentNotification;
-        const iv = setInterval(() => {
-            const remaining = Math.max(0, duration - (Date.now() - start));
-            setProgress((remaining / duration) * 100);
-            if (remaining <= 0) clearInterval(iv);
-        }, 16);
-        return () => clearInterval(iv);
-    }, [currentNotification]);
-
     if (!currentNotification || currentNotification.type === 'action') return null;
 
-    const isWinner = currentNotification.metadata?.notificationType === 'winner_determined'
-                  || currentNotification.metadata?.notificationType === 'game_tied';
-    const showProgress = currentNotification.type !== 'deal'
-                      && !isWinner
-                      && progress > 0;
-
     return (
-        <div className='absolute top-2 left-2 right-2 z-10'>
-            <div className='relative w-full h-10 overflow-hidden rounded-full bg-green-900 border flex items-center justify-center'>
-                {showProgress && (
-                    <div
-                        className='absolute left-0 top-0 bottom-0 bg-green-500 transition-all duration-100 ease-linear z-5'
-                        style={{ width: `${progress}%`, opacity: 0.8 }}
-                    />
-                )}
+        <div className='absolute top-0 left-0 right-0 z-10'>
+            <div className='w-full h-10 bg-gray-900/90 flex items-center justify-center'>
                 <PokerNotificationDisplay notification={currentNotification} />
             </div>
         </div>
@@ -165,7 +140,7 @@ export default function PokerTableList({
                     <CommunalCards />
                 </div>
                 {/* Player controls overlay — always mounted so GameNotification socket sub stays alive */}
-                <div className={showPlayerControls ? 'absolute bottom-3 left-4 right-4 z-20' : 'hidden'}>
+                <div className={showPlayerControls ? 'absolute bottom-0 left-0 right-0 z-20' : 'hidden'}>
                     <PokerDashboard showPlayerControls={showPlayerControls} onActionTaken={handleActionTaken} />
                 </div>
             </div>
