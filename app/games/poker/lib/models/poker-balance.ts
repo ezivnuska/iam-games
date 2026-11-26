@@ -13,7 +13,7 @@ const PokerBalanceSchema = new Schema<PokerBalanceDocument>(
     userId: { type: String, required: true, unique: true },
     chipCount: { type: Number, required: true, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true, bufferCommands: false }
 );
 
 export const PokerBalance =

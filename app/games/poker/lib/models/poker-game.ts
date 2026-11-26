@@ -245,9 +245,10 @@ const PokerGameSchema = new Schema<PokerGameDocument>(
   },
   {
     timestamps: true,
-    optimisticConcurrency: true,  // Enable optimistic concurrency control
-    strict: true,  // Reject fields not in schema
-    strictQuery: true  // Apply strict mode to queries
+    optimisticConcurrency: true,
+    strict: true,
+    strictQuery: true,
+    bufferCommands: false,
   }
 );
 
