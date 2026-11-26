@@ -214,7 +214,15 @@ export async function handleWinnerNotificationComplete(body: SignalBody): Promis
     const game = await PokerGame.findById(gameId)
     if (!game) return NextResponse.json({ error: 'Game not found' }, { status: 404 })
 
-    await StageManager.resetGameForNextRound(game)
+    try {
+        await StageManager.resetGameForNextRound(game)
+    } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'VersionError') {
+            // Concurrent call already processed the reset — expected when both clients ack
+            return NextResponse.json({ success: true })
+        }
+        return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
+    }
     return NextResponse.json({ success: true })
 }
 

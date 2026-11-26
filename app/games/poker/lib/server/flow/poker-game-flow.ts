@@ -134,7 +134,10 @@ export function awardPotToWinners(game: PokerGameDoc, winnerInfo: WinnerInfo): v
     );
 
     if (eligiblePlayers.length === 0) {
-      console.warn(`[AwardPot] No eligible players for pot ${potIndex}, skipping`);
+      // No eligible players — award to overall winner to preserve chip conservation
+      console.warn(`[AwardPot] No eligible players for pot ${potIndex} (${pot.amount} chips) — awarding to game winner`);
+      const fallback = game.players.find((p: Player) => p.id === winnerInfo.winnerId);
+      if (fallback) fallback.chipCount += pot.amount;
       continue;
     }
 
