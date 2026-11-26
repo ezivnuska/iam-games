@@ -87,6 +87,7 @@ export default function PokerTableList({
 }: PokerTableListProps) {
     const { players } = usePlayers();
     const { locked, currentPlayerIndex, dealerButtonPosition } = useGameState();
+    const hasHumanPlayers = players.some(p => !p.isAI);
     const { gameId } = useViewers();
     const { resetSingleton } = usePokerActions();
     const { user } = useUser();
@@ -132,7 +133,7 @@ export default function PokerTableList({
             {/* Game area — 20% pre-game, 50% in-game */}
             <div
                 className={`relative flex flex-col min-h-0 min-w-0 transition-[flex-basis] duration-300 ease-in-out ${isLandscape ? 'border-r border-green-700' : 'border-b border-green-700'}`}
-                style={{ flexGrow: 1, flexShrink: 1, flexBasis: locked ? '50%' : '20%' }}
+                style={{ flexGrow: 1, flexShrink: 1, flexBasis: (hasHumanPlayers || locked) ? '50%' : '20%' }}
             >
                 <NotificationBar />
                 <div className='flex flex-1 min-h-0 flex-col items-center justify-center gap-4 bg-green-900 px-4 py-4'>
@@ -148,7 +149,7 @@ export default function PokerTableList({
             {/* Player list — 80% pre-game, 50% in-game */}
             <div
                 className='flex flex-col min-h-0 overflow-y-auto px-2 py-2 gap-1 transition-[flex-basis] duration-300 ease-in-out'
-                style={{ flexGrow: 1, flexShrink: 1, flexBasis: locked ? '50%' : '80%' }}
+                style={{ flexGrow: 1, flexShrink: 1, flexBasis: (hasHumanPlayers || locked) ? '50%' : '80%' }}
             >
                 {renderSlots()}
             </div>

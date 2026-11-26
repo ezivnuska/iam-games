@@ -139,7 +139,10 @@ export async function advanceToNextStep(gameId: string): Promise<{
       game.markModified('currentStep');
     }
   ).catch(error => {
-    if (error.message === 'Cannot advance - no current step' || error.message === 'No next step available') {
+    if (error.message === 'No next step available') {
+      return null; // Expected at end of final stage — not an error
+    }
+    if (error.message === 'Cannot advance - no current step') {
       console.error('[StepManager]', error.message);
       return null;
     }
